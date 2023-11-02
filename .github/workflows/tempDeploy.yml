@@ -1,7 +1,7 @@
 name: Build and Deploy
 on:
   push:
-    branches: develop
+    branches: Feat/#4-slide-menu
 jobs:
   deploy:
     runs-on: ubuntu-latest
