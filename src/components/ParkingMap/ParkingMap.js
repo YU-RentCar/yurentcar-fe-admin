@@ -215,10 +215,16 @@ const ParkingMap = () => {
           return {
             x: item.x / (mapController.DEFAULT_SIZE * zoom),
             y: item.y / (mapController.DEFAULT_SIZE * zoom),
-            fill: item.fill,
+            type: (() => {
+              for (let type in colorSet) {
+                if (item.fill === colorSet[type]) {
+                  return type;
+                }
+              }
+            })(),
           };
         })
-        .filter((item) => item.fill !== "white"),
+        .filter((item) => item.type),
     });
 
     console.log(payload);
