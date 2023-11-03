@@ -2,8 +2,17 @@ import React from "react";
 import { Stage, Layer, Rect, Circle } from "react-konva";
 import { useEffect, useState, useRef } from "react";
 import { MdCreate, MdZoomIn, MdZoomOut } from "react-icons/md";
+import Alert from "popUp/Alert";
+import { useAlert } from "utils/useAlert";
+import { useRecoilValue } from "recoil";
+import { alertAtom } from "recoil/alertAtom";
+import option from "./option";
+import colorSet from "./color";
 
 const ParkingMap = () => {
+  const alert = useAlert();
+  const alertState = useRecoilValue(alertAtom);
+
   // 기본 정사각형 크기
   const DEFAULT_WIDTH = 50;
 
@@ -11,15 +20,7 @@ const ParkingMap = () => {
   const UNSELECTED_STYLE =
     "flex items-center justify-start p-2 text-xl font-bold border border-gray-500 rounded-2xl";
 
-  // 색상 hex
-  const COLOR_STYLE = {
-    green: "#4ADE80",
-    red: "#F87171",
-    blue: "#60A5FA",
-    gray: "#94A3B8",
-  };
-
-  const [clickMode, setClickMode] = useState("init");
+  const [drawOption, setDrawOption] = useState("init");
   const [zoom, setZoom] = useState(1);
   const [size, _] = useState(DEFAULT_WIDTH * zoom);
 
@@ -118,30 +119,11 @@ const ParkingMap = () => {
     for (const item of axiosList) {
       const idx = item.y * col + item.x;
 
-      let fill = "";
-
-      switch (item.type) {
-        case "인도":
-          fill = COLOR_STYLE["green"];
-          break;
-        case "차도":
-          fill = COLOR_STYLE["gray"];
-          break;
-        case "주차 가능":
-          fill = COLOR_STYLE["blue"];
-          break;
-        case "주차 불가능":
-          fill = COLOR_STYLE["red"];
-          break;
-        default:
-          break;
-      }
-
       initMap[idx] = {
         id: idx.toString(),
         x: (idx % col) * (DEFAULT_WIDTH * zoom),
         y: Math.floor(idx / col) * (DEFAULT_WIDTH * zoom),
-        fill: fill,
+        fill: colorSet[option.korToEng(item.type)],
       };
     }
 
@@ -159,44 +141,44 @@ const ParkingMap = () => {
             <div className="grid grid-cols-2 grid-rows-2 gap-2">
               <div
                 className={
-                  clickMode === "green"
+                  drawOption === ""
                     ? getSelectedStyle("green")
                     : UNSELECTED_STYLE
                 }
-                onClick={() => setClickMode("green")}
+                onClick={() => setDrawOption("sidewalk")}
               >
                 <div className="bg-[#4ADE80] w-[30px] h-[30px] ml-2 mr-4"></div>
                 <div>인도</div>
               </div>
               <div
                 className={
-                  clickMode === "blue"
+                  drawOption === "blue"
                     ? getSelectedStyle("blue")
                     : UNSELECTED_STYLE
                 }
-                onClick={() => setClickMode("blue")}
+                onClick={() => setDrawOption("parking_available")}
               >
                 <div className="bg-[#60A5FA] w-[30px] h-[30px] ml-2 mr-4"></div>
                 <div>주차 가능</div>
               </div>
               <div
                 className={
-                  clickMode === "gray"
+                  drawOption === "gray"
                     ? getSelectedStyle("gray")
                     : UNSELECTED_STYLE
                 }
-                onClick={() => setClickMode("gray")}
+                onClick={() => setDrawOption("driveway")}
               >
                 <div className="bg-slate-400 w-[30px] h-[30px] ml-2 mr-4"></div>
                 <div>차도</div>
               </div>
               <div
                 className={
-                  clickMode === "red"
+                  drawOption === "red"
                     ? getSelectedStyle("red")
                     : UNSELECTED_STYLE
                 }
-                onClick={() => setClickMode("red")}
+                onClick={() => setDrawOption("parking_disable")}
               >
                 <div className="bg-[#F87171] w-[30px] h-[30px] ml-2 mr-4"></div>
                 <div>주차 불가능</div>
@@ -265,6 +247,7 @@ const ParkingMap = () => {
                 width={size * zoom}
                 height={size * zoom}
                 stroke="black"
+                strokeWidth={0.5}
                 fill={rect.fill}
                 onPointerClick={createClick}
                 onPointerDblClick={deleteClick}
@@ -273,6 +256,7 @@ const ParkingMap = () => {
           })}
         </Layer>
       </Stage>
+      {alertState.state && <Alert />}
     </>
   );
 
@@ -281,28 +265,10 @@ const ParkingMap = () => {
     const payload = JSON.stringify({
       parkingSpotRequestList: rects
         .map((v, i) => {
-          let type = "";
-
-          switch (v.fill) {
-            case COLOR_STYLE["green"]:
-              type = "인도";
-              break;
-            case COLOR_STYLE["gray"]:
-              type = "차도";
-              break;
-            case COLOR_STYLE["blue"]:
-              type = "주차 가능";
-              break;
-            case COLOR_STYLE["red"]:
-              type = "주차 불가능";
-              break;
-            default:
-          }
-
           return {
             x: v.x / (DEFAULT_WIDTH * zoom),
             y: v.y / (DEFAULT_WIDTH * zoom),
-            type: type,
+            type: colorSet[option[v]],
           };
         })
         .filter((v, i) => v.type !== ""),
@@ -315,12 +281,17 @@ const ParkingMap = () => {
     const id = e.target.attrs.id;
     console.log(e.target.attrs);
 
+    if (e.target.attrs.fill === colorSet.parking_available) {
+      // Axios 확인한번 해보기
+      alert.onAndOff("현재 주차중인 차가 있어, 바꿀 수 없습니다");
+    }
+
     setRects(
       rects.map((v, i) => {
         if (id === v.id) {
           return {
             ...v,
-            fill: clickMode === "init" ? v.fill : COLOR_STYLE[clickMode],
+            fill: drawOption === "init" ? v.fill : colorSet[drawOption],
           };
         } else {
           return v;
@@ -332,6 +303,11 @@ const ParkingMap = () => {
   function deleteClick(e) {
     const id = e.target.attrs.id;
     console.log(id);
+
+    if (e.target.attrs.fill === colorSet.parking_available) {
+      // Axios 확인한번 해보기
+      alert.onAndOff("현재 주차중인 차가 있어, 바꿀 수 없습니다");
+    }
 
     setRects(
       rects.map((v, i) => {
