@@ -112,7 +112,7 @@ const ParkingMap = () => {
               }
               onClick={() => setDrawOption(option.driveway)}
             >
-              <div className="bg-slate-400 w-[30px] h-[30px] ml-2 mr-4"></div>
+              <div className="bg-[#94A3B8] w-[30px] h-[30px] ml-2 mr-4"></div>
               <div>차도</div>
             </div>
             <div
