@@ -37,7 +37,7 @@ const CarState = () => {
   }, [maxPage]);
   return (
     <>
-      <div className="flex flex-col items-center justify-center w-full h-full">
+      <div className="flex flex-col items-center justify-center w-full h-screen">
         <div className="w-[1140px] mx-auto rounded-2xl bg-white shadow-xl flex flex-col justify-center items-center">
           <div className="flex items-center justify-between w-full h-[50px] px-8 mt-12">
             <div className="flex items-center h-full">
