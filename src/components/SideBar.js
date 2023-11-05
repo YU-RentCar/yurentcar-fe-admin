@@ -29,7 +29,7 @@ const SideBar = () => {
     {
       name: "주차장 관리",
       icon: <MdLocalParking className="text-[35px]" />,
-      path: "/mapmanage",
+      path: "/map",
     },
     { name: "포인트 관리", icon: <MdMoney className="text-[35px]" /> },
     { name: "공지사항 관리", icon: <MdAssignment className="text-[35px]" /> },

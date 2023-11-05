@@ -1,4 +1,4 @@
-import ParkingMap from "pages/MapManage/ParkingMap/ParkingMap";
+import ParkingMap from "pages/Map/ParkingMap/ParkingMap";
 import React from "react";
 
 const MapManage = () => {
