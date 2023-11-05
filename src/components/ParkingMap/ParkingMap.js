@@ -236,7 +236,9 @@ const ParkingMap = () => {
 
     if (e.target.attrs.fill === colorSet[option.parkingAvailable]) {
       // Axios 확인한번 해보기
-      alert.onAndOff("현재 주차중인 차가 있어, 바꿀 수 없습니다");
+      alert.onAndOff("현재 주차중인 차가 있는지 확인 중입니다.");
+
+      return;
     }
 
     setRects(
@@ -260,7 +262,8 @@ const ParkingMap = () => {
 
     if (e.target.attrs.fill === colorSet[option.parkingAvailable]) {
       // Axios 확인한번 해보기
-      alert.onAndOff("현재 주차중인 차가 있어, 바꿀 수 없습니다");
+      alert.onAndOff("현재 주차중인 차가 있는지 확인 중입니다.");
+      return;
     }
 
     setRects(
