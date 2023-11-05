@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useCarState } from "./utils/useCarState";
 import {
   Menu,
   MenuHandler,
@@ -13,127 +14,27 @@ import {
 } from "react-icons/md";
 
 const CarState = () => {
+  const csu = useCarState(); // CarState 의 Utils
   const [page, setPage] = useState(1); // 현재 페이지
   const [maxPage, setMaxPage] = useState(1); // 최대 페이지
-  const [sortMenu, setSortMenu] = useState(["사용가능", "수리/점검", "도난"]); // 정렬 기준 = 차량 상태
+  const [filterMenu, setFilterMenu] = useState([
+    "전체",
+    "사용가능",
+    "수리/점검",
+    "도난",
+  ]); // 검색 필터
+  const [stateMenu, setStateMenu] = useState(["사용가능", "수리/점검", "도난"]); // 차량 상태
   const [six, setSix] = useState([]); // 실제 화면 상에 보여질 6개
-  // 선택 기준으로 변경 함수
-  const changeSortMenu = (type, idx, cnt) => {
-    if (type === "title") {
-      const target = document.getElementById("sort");
-      target.innerText = sortMenu[idx];
-    } else {
-      const target = document.getElementById(`sort${cnt}`);
-      target.innerText = sortMenu[idx];
-    }
-  };
-  // 특정 페이지의 6개 가져오기
-  const getPageCars = (page) => {
-    const pageCars = cars.slice((page - 1) * 6, page * 6);
-    return pageCars;
-  };
-  // 비어있는 개수 채우기
-  const fillSix = (beforeSix) => {
-    const len = beforeSix.length;
-    const tmp = [...beforeSix];
-    if (len < 6) {
-      for (let i = 0; i < 6 - len; i++) {
-        tmp.push({
-          carName: "",
-          carNumber: "",
-          carState: "",
-        });
-      }
-    }
-    return tmp;
-  };
-  // 차량 더미 데이터
-  const [cars, setCars] = useState([
-    {
-      carName: "그랜저 HG",
-      carNumber: "12삼4567",
-      carState: "도난",
-    },
-    {
-      carName: "그랜저 HG",
-      carNumber: "12삼4567",
-      carState: "도난",
-    },
-    {
-      carName: "그랜저 HG",
-      carNumber: "12삼4567",
-      carState: "도난",
-    },
-    {
-      carName: "그랜저 HG",
-      carNumber: "12삼4567",
-      carState: "도난",
-    },
-    {
-      carName: "그랜저 HG",
-      carNumber: "12삼4567",
-      carState: "도난",
-    },
-    {
-      carName: "아반떼",
-      carNumber: "89십1112",
-      carState: "사용가능",
-    },
-    {
-      carName: "아반떼",
-      carNumber: "89십1112",
-      carState: "사용가능",
-    },
-    {
-      carName: "아반떼",
-      carNumber: "89십1112",
-      carState: "사용가능",
-    },
-    {
-      carName: "아반떼",
-      carNumber: "89십1112",
-      carState: "사용가능",
-    },
-    {
-      carName: "아반떼",
-      carNumber: "89십1112",
-      carState: "사용가능",
-    },
-    {
-      carName: "소나타",
-      carNumber: "13십4151",
-      carState: "수리/점검",
-    },
-    {
-      carName: "소나타",
-      carNumber: "13십4151",
-      carState: "수리/점검",
-    },
-    {
-      carName: "소나타",
-      carNumber: "13십4151",
-      carState: "수리/점검",
-    },
-    {
-      carName: "소나타",
-      carNumber: "13십4151",
-      carState: "수리/점검",
-    },
-    {
-      carName: "소나타",
-      carNumber: "13십4151",
-      carState: "수리/점검",
-    },
-  ]);
+  const [searchTarget, setSearchTarget] = useState(""); // 검색할 차량 번호
   useEffect(() => {
-    // 6개보다 적다면 빈걸로 채워주기
-    const tmp = fillSix([...cars]);
-    setCars(tmp);
-    // 최대 페이지 계산
-    setMaxPage(Math.ceil(cars.length / 6));
-    // 1페이지 6개만 잘라서 저장
-    setSix(getPageCars(1));
+    const tmp = [...csu.getCarList()]; // 서버로부터 차량 리스트 조회
+    setMaxPage(Math.ceil(tmp.length / 6));
   }, []);
+  // maxPage 가 바뀌면 -> 새로운 데이터셋
+  useEffect(() => {
+    setSix(csu.fillSix(csu.getPageCars(1)));
+    setPage(1);
+  }, [maxPage]);
   return (
     <>
       <div className="flex flex-col items-center justify-center w-full h-full">
@@ -145,7 +46,13 @@ const CarState = () => {
                 차량 상태 관리
               </span>
               {/* 상태 저장 버튼 */}
-              <button className="h-full ml-6 text-xl font-semibold text-white bg-blue-400 rounded-full w-44 hover:shadow-figma">
+              <button
+                className="h-full ml-6 text-xl font-semibold text-white bg-blue-400 rounded-full w-44 hover:shadow-figma"
+                onClick={() => {
+                  const tmp = csu.saveChange();
+                  console.log(tmp);
+                }}
+              >
                 차량 상태 저장
               </button>
             </div>
@@ -154,23 +61,27 @@ const CarState = () => {
               <input
                 className="h-full px-8 text-xl font-semibold border-2 border-blue-500 rounded-full w-[280px]"
                 placeholder="차량 번호를 입력해주세요"
+                onChange={(e) => setSearchTarget(e.target.value.trim())}
               />
-              {/* 정렬 */}
+              {/* 검색 */}
               <Menu>
                 <MenuHandler>
                   <button className="w-[160px] h-full bg-blue-400 text-white flex justify-around items-center rounded-full px-2 ml-4 text-xl">
                     <span id="sort" className="font-bold">
-                      {sortMenu[1]}
+                      {filterMenu[0]}
                     </span>
                     <MdArrowBackIosNew className="-rotate-90" />
                   </button>
                 </MenuHandler>
                 <MenuList>
-                  {sortMenu.map((v, i) => {
+                  {filterMenu.map((v, i) => {
                     return (
                       <MenuItem
                         className="flex items-center justify-center text-lg font-bold"
-                        onClick={() => changeSortMenu("title", i, 0)}
+                        onClick={() => {
+                          const target = document.getElementById("sort");
+                          csu.changeMenu("title", target, filterMenu[i], 0);
+                        }}
                         key={i}
                       >
                         {v}
@@ -180,7 +91,18 @@ const CarState = () => {
                 </MenuList>
               </Menu>
               {/* 검색 버튼 */}
-              <MdSearch className="ml-4 text-5xl text-blue-500" />
+              <button
+                className="ml-4 text-5xl text-blue-500"
+                onClick={() => {
+                  const tmp = csu.searchCars(
+                    searchTarget,
+                    document.getElementById("sort").innerText
+                  );
+                  setMaxPage(Math.ceil(tmp.length / 6)); // 검색 결과 -> 새로운 데이터 셋
+                }}
+              >
+                <MdSearch />
+              </button>
             </div>
           </div>
           {/* 타이틀 */}
@@ -204,6 +126,7 @@ const CarState = () => {
               <div
                 id={i}
                 className="flex items-center w-full h-16 pl-4 pr-8 text-lg font-semibold border-b-2 border-t-slate-300"
+                key={i}
               >
                 <div className="w-[269px] h-full flex justify-center items-center">
                   {v.carName}
@@ -214,7 +137,7 @@ const CarState = () => {
                 <div className="w-[269px] h-full flex justify-center items-center">
                   {v.carState}
                 </div>
-                {v.carNumber === "" ? (
+                {v.afterChange === "" ? (
                   ""
                 ) : (
                   <div className="w-[269px] h-full flex justify-center items-center">
@@ -222,17 +145,27 @@ const CarState = () => {
                       <MenuHandler>
                         <button className="w-[160px] h-10 bg-blue-400 text-white flex justify-around items-center rounded-2xl text-lg px-4">
                           <span id={`sort${i}`} className="font-bold">
-                            {v.carState}
+                            {v.afterChange}
                           </span>
                           <MdArrowBackIosNew className="-rotate-90" />
                         </button>
                       </MenuHandler>
                       <MenuList>
-                        {sortMenu.map((v, idx) => {
+                        {stateMenu.map((v, idx) => {
                           return (
                             <MenuItem
                               className="flex items-center justify-center text-lg font-bold"
-                              onClick={() => changeSortMenu("list", idx, i)}
+                              onClick={() => {
+                                const target = document.getElementById(
+                                  `sort${i}`
+                                );
+                                csu.changeMenu(
+                                  "list",
+                                  target,
+                                  stateMenu[idx],
+                                  (page - 1) * 6 + i
+                                );
+                              }}
                               key={idx}
                             >
                               {v}
@@ -253,7 +186,7 @@ const CarState = () => {
             className="text-5xl"
             onClick={() => {
               if (page === 1) return;
-              setSix(fillSix(getPageCars(page - 1)));
+              setSix(csu.fillSix(csu.getPageCars(page - 1)));
               setPage(page - 1);
             }}
           />
@@ -265,7 +198,7 @@ const CarState = () => {
             className="text-5xl"
             onClick={() => {
               if (page === maxPage) return;
-              setSix(fillSix(getPageCars(page + 1)));
+              setSix(csu.fillSix(csu.getPageCars(page + 1)));
               setPage(page + 1);
             }}
           />
