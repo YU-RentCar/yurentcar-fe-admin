@@ -74,6 +74,7 @@ const SideBar = () => {
             {menu.map((v, i) => {
               return (
                 <button
+                  key={i}
                   className="w-[400px] h-[60px] px-4 mt-3 rounded-2xl hover:bg-slate-400 flex items-center hover:text-slate-800"
                   onClick={() => {
                     nav(v["path"]); // 지정된 경로로 이동
