@@ -167,11 +167,11 @@ export const useCarState = function () {
       );*/
   };
   // 차량 검색
-  cs.searchCars = function (carNumber, sortMenu) {
+  cs.searchCars = function (carNumber, menu) {
     const tmp = [...this.getCarList()];
     let res;
     // 필터링 or 검색
-    if (carNumber === "") res = tmp.filter((v) => v.carState === sortMenu);
+    if (carNumber === "") res = tmp.filter((v) => v.carState === menu);
     else res = tmp.filter((v) => v.carNumber === carNumber);
     this.setCars(res);
     return res;
