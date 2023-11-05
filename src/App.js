@@ -6,13 +6,15 @@ import { Route, Routes } from "react-router-dom";
 function App() {
   return (
     <>
-      {/* 사이드바 */}
-      <SideBar />
-      {/* 메인 컨텐츠 */}
-      <Routes>
-        <Route path="/carstate" element={<CarState />}></Route>
-        <Route path="/mapmanage" element={<MapManage />}></Route>
-      </Routes>
+      <div className="w-screen h-screen bg-slate-50">
+        {/* 사이드바 */}
+        <SideBar />
+        {/* 메인 컨텐츠 */}
+        <Routes>
+          <Route path="/carstate" element={<CarState />}></Route>
+          <Route path="/mapmanage" element={<MapManage />}></Route>
+        </Routes>
+      </div>
     </>
   );
 }
