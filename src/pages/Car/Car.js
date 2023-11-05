@@ -1,28 +1,25 @@
 import { useEffect, useState } from "react";
-import { useCarState } from "pages/CarState/utils/useCarState";
+import { useCar } from "pages/Car/utils/useCar";
 import { MdSearch, MdArrowBack, MdArrowForward } from "react-icons/md";
+import { usePopUp } from "utils/usePopUp";
+import Delete from "popUp/Car/Delete";
 
 const Car = () => {
-  const csu = useCarState(); // CarState 의 Utils
+  const popUp = usePopUp("Car/Delete"); // Delete 팝업 제어
+  const cu = useCar(); // Car 의 Utils
   const [page, setPage] = useState(1); // 현재 페이지
-  const [maxPage, setMaxPage] = useState(1); // 최대 페이지
-  const [filterMenu, setFilterMenu] = useState([
-    "전체",
-    "사용가능",
-    "수리/점검",
-    "도난",
-  ]); // 검색 필터
-  const [stateMenu, setStateMenu] = useState(["사용가능", "수리/점검", "도난"]); // 차량 상태
+  const [maxPage, setMaxPage] = useState({ num: 1 }); // 최대 페이지
   const [six, setSix] = useState([]); // 실제 화면 상에 보여질 6개
   const [searchTarget, setSearchTarget] = useState(""); // 검색할 차량 번호
+  const [delTarget, setDelTarget] = useState({});
   useEffect(() => {
-    const tmp = [...csu.getCarList()]; // 서버로부터 차량 리스트 조회
-    setMaxPage(Math.ceil(tmp.length / 6));
+    const tmp = [...cu.getCarList()]; // 서버로부터 차량 리스트 조회
+    setMaxPage({ num: Math.ceil(tmp.length / 6) });
   }, []);
   // maxPage 가 바뀌면 -> 새로운 데이터셋
   useEffect(() => {
-    setSix(csu.fillSix(csu.getPageCars(1)));
-    setPage(1);
+    setSix(cu.fillSix(cu.getPageCars(1)));
+    maxPage ? setPage(1) : setPage(0);
   }, [maxPage]);
   return (
     <>
@@ -44,11 +41,8 @@ const Car = () => {
               <button
                 className="ml-2 text-4xl text-blue-500"
                 onClick={() => {
-                  const tmp = csu.searchCars(
-                    searchTarget,
-                    document.getElementById("sort").innerText
-                  );
-                  setMaxPage(Math.ceil(tmp.length / 6)); // 검색 결과 -> 새로운 데이터 셋
+                  const tmp = cu.searchCars(searchTarget);
+                  setMaxPage({ num: Math.ceil(tmp.length / 6) }); // 검색 결과 -> 새로운 데이터 셋
                 }}
               >
                 <MdSearch />
@@ -58,8 +52,7 @@ const Car = () => {
             <button
               className="h-full text-xl font-semibold text-white bg-blue-400 rounded-full w-44 hover:shadow-figma"
               onClick={() => {
-                const tmp = csu.saveChange();
-                console.log(tmp);
+                console.log("신규 등록 이동");
               }}
             >
               신규 차량 등록
@@ -101,10 +94,24 @@ const Car = () => {
                   ""
                 ) : (
                   <div className="w-[269px] h-full flex justify-around items-center px-6">
-                    <button className="w-[130px] h-2/3 rounded-full bg-slate-200 text-lg font-medium text-slate-500 hover:shadow-figma">
+                    <button
+                      className="w-[130px] h-2/3 rounded-full bg-slate-200 text-lg font-medium text-slate-500 hover:shadow-figma"
+                      onClick={() => {
+                        console.log("제원 변경");
+                      }}
+                    >
                       제원 변경
                     </button>
-                    <button className="w-[70px] h-2/3 rounded-full border-2 border-red-300 text-lg font-medium text-red-300 hover:shadow-figma">
+                    <button
+                      className="w-[70px] h-2/3 rounded-full border-2 border-red-300 text-lg font-medium text-red-300 hover:shadow-figma"
+                      onClick={() => {
+                        setDelTarget({
+                          adminUsername: "",
+                          carId: v.carId,
+                        });
+                        popUp.toggle();
+                      }}
+                    >
                       삭제
                     </button>
                   </div>
@@ -119,24 +126,27 @@ const Car = () => {
             className="text-5xl"
             onClick={() => {
               if (page === 1) return;
-              setSix(csu.fillSix(csu.getPageCars(page - 1)));
+              setSix(cu.fillSix(cu.getPageCars(page - 1)));
               setPage(page - 1);
             }}
           />
           <div className="text-lg">
             Page <span className="text-2xl">{page}</span> of{" "}
-            <span className="text-2xl">{maxPage}</span>
+            <span className="text-2xl">{maxPage.num}</span>
           </div>
           <MdArrowForward
             className="text-5xl"
             onClick={() => {
               if (page === maxPage) return;
-              setSix(csu.fillSix(csu.getPageCars(page + 1)));
+              setSix(cu.fillSix(cu.getPageCars(page + 1)));
               setPage(page + 1);
             }}
           />
         </div>
       </div>
+      {popUp.isClicked ? (
+        <Delete delTarget={delTarget} cu={cu} setMaxPage={setMaxPage} />
+      ) : null}
     </>
   );
 };
