@@ -26,7 +26,11 @@ const SideBar = () => {
     { name: "차 관리", icon: <MdDriveEta className="text-[35px]" /> },
     { name: "차 키 관리", icon: <MdVpnKey className="text-[35px]" /> },
     { name: "예약 변경", icon: <MdEditCalendar className="text-[35px]" /> },
-    { name: "주차장 관리", icon: <MdLocalParking className="text-[35px]" /> },
+    {
+      name: "주차장 관리",
+      icon: <MdLocalParking className="text-[35px]" />,
+      path: "/map",
+    },
     { name: "포인트 관리", icon: <MdMoney className="text-[35px]" /> },
     { name: "공지사항 관리", icon: <MdAssignment className="text-[35px]" /> },
   ]); // 각 메뉴 + 아이콘
