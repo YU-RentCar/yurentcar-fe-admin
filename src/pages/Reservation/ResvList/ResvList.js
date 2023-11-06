@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { MdSearch, MdArrowBack, MdArrowForward } from "react-icons/md";
 import useResvList from "./utils/useResvList";
 import { useRecoilState } from "recoil";
-import { reservationAtom } from "recoil/reservationAtom";
+import { reservationAtom, selectedInfoAtom } from "recoil/reservationAtom";
 
 const ResvList = ({ handleNext }) => {
   // 페이지 조작을 위한 커스텀 훅
   const ctrl = useResvList(4);
 
   const [rclResvAtom, setRclResvAtom] = useRecoilState(reservationAtom);
+  const [rclSelected, setRclSelected] = useRecoilState(selectedInfoAtom);
 
   // 현재 페이지 쪽수
   const [pageNum, setPageNum] = useState(1);
@@ -107,6 +108,13 @@ const ResvList = ({ handleNext }) => {
                         setRclResvAtom({
                           ...rclResvAtom,
                           nickname: v.nickname,
+                        });
+                        setRclSelected({
+                          nickname: v.nickname,
+                          resvID: v.resvID,
+                          carNumber: v.carNumber,
+                          startDate: v.startDate,
+                          endDate: v.endDate,
                         });
                         handleNext();
                       }}

@@ -4,6 +4,7 @@ import { MdFavorite } from "react-icons/md";
 import { useRecoilState } from "recoil";
 import { nicknameSelector } from "recoil/reservationAtom";
 import ResvList from "./ResvList/ResvList";
+import DateTime from "./DateTime/DateTime";
 
 const Reservation = () => {
   const [activeStep, setActiveStep] = useState(0);
@@ -96,7 +97,7 @@ const Reservation = () => {
         </div>
       </div>
       {activeStep === 0 ? <ResvList handleNext={handleNext}></ResvList> : null}
-      {activeStep === 1 ? <div>ww2</div> : null}
+      {activeStep === 1 ? <DateTime handleNext={handleNext}></DateTime> : null}
       {activeStep === 2 ? <div>ww3</div> : null}
     </div>
   );

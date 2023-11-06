@@ -11,6 +11,19 @@ export const reservationAtom = atom({
   },
 });
 
+export const selectedInfoAtom = atom({
+  key: "selectedInfoAtom",
+  default: {
+    nickname: null,
+    resvID: null,
+    carNumber: "",
+    startDate: null,
+    startTime: null,
+    endDate: null,
+    endTime: null,
+  },
+});
+
 export const nicknameSelector = selector({
   key: "nicknameSelector",
   get: ({ get }) => get(reservationAtom).nickname,
