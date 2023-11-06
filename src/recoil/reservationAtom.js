@@ -8,7 +8,6 @@ export const reservationAtom = atom({
     endDate: null,
     startTime: null,
     endTime: null,
-    resvInfoList: null,
   },
 });
 

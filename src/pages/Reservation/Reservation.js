@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { MdFavorite } from "react-icons/md";
 import { useRecoilState } from "recoil";
 import { nicknameSelector } from "recoil/reservationAtom";
-import UserList from "./ReservationList/ReservationList";
+import ResvList from "./ResvList/ResvList";
 
 const Reservation = () => {
   const [activeStep, setActiveStep] = useState(0);
@@ -95,7 +95,7 @@ const Reservation = () => {
           </div> */}
         </div>
       </div>
-      {activeStep === 0 ? <UserList></UserList> : null}
+      {activeStep === 0 ? <ResvList handleNext={handleNext}></ResvList> : null}
       {activeStep === 1 ? <div>ww2</div> : null}
       {activeStep === 2 ? <div>ww3</div> : null}
     </div>
