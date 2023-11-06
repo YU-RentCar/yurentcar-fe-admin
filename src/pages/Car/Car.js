@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { useCar } from "pages/Car/utils/useCar";
 import { MdSearch, MdArrowBack, MdArrowForward } from "react-icons/md";
 import { usePopUp } from "utils/usePopUp";
+import { useNavigate } from "react-router-dom";
 import Delete from "popUp/Car/Delete";
 
 const Car = () => {
+  const nav = useNavigate(); // nav 제어
   const popUp = usePopUp("Car/Delete"); // Delete 팝업 제어
   const cu = useCar(); // Car 의 Utils
   const [page, setPage] = useState(1); // 현재 페이지
@@ -23,7 +25,7 @@ const Car = () => {
   }, [maxPage]);
   return (
     <>
-      <div className="flex flex-col items-center justify-center w-full h-full">
+      <div className="flex flex-col items-center justify-center w-full h-screen">
         <div className="w-[1140px] mx-auto rounded-2xl bg-white shadow-xl flex flex-col justify-center items-center">
           <div className="flex items-center justify-between w-full h-[50px] px-8 mt-12">
             {/* 타이틀 */}
@@ -52,7 +54,7 @@ const Car = () => {
             <button
               className="h-full text-xl font-semibold text-white bg-blue-400 rounded-full w-44 hover:shadow-figma"
               onClick={() => {
-                console.log("신규 등록 이동");
+                nav("/managecar", { state: { type: "add" } });
               }}
             >
               신규 차량 등록
@@ -97,7 +99,9 @@ const Car = () => {
                     <button
                       className="w-[130px] h-2/3 rounded-full bg-slate-200 text-lg font-medium text-slate-500 hover:shadow-figma"
                       onClick={() => {
-                        console.log("제원 변경");
+                        nav("/managecar", {
+                          state: { type: "modify", carNumber: v.carNumber },
+                        });
                       }}
                     >
                       제원 변경
