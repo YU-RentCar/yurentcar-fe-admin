@@ -8,8 +8,11 @@ import DatePicker from "react-datepicker";
 import dayjs from "dayjs";
 
 import { MdInfoOutline } from "react-icons/md";
-import { useRecoilState } from "recoil";
-import { reservationAtom, selectedInfoAtom } from "recoil/reservationAtom";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { altResvAtom, prevResvAtom } from "recoil/reservationAtom";
+import { useAlert } from "utils/useAlert";
+import Alert from "popUp/Alert";
+import { alertAtom } from "recoil/alertAtom";
 
 // 영업시간 체크 함수
 function validationTime(time) {
@@ -26,8 +29,8 @@ function validationTime(time) {
 }
 
 const DateTime = ({ handleNext }) => {
-  const [selectedUser, _] = useRecoilState(selectedInfoAtom);
-  const [newResvInfo, setNewResvInfo] = useRecoilState(reservationAtom);
+  const [rclPrevResv, _] = useRecoilState(prevResvAtom);
+  const [rclAltResv, setRclAltResv] = useRecoilState(altResvAtom);
 
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
@@ -35,10 +38,13 @@ const DateTime = ({ handleNext }) => {
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
 
+  const alert = useAlert();
+  const alertState = useRecoilValue(alertAtom);
+
   useEffect(() => {
     console.log("체크 시작");
 
-    console.log(selectedUser);
+    console.log(rclPrevResv);
 
     console.log(dayjs(startDate).format("YYYY-MM-DD"));
     console.log(endDate);
@@ -50,29 +56,50 @@ const DateTime = ({ handleNext }) => {
 
   return (
     <>
-      <div className="flex items-center justify-center w-[1100px] h-16 pl-4 pr-8 text-lg font-semibold border-b-2 border-t-slate-300">
+      <div className="relative flex items-center justify-center px-8 py-2 mt-3 text-lg font-semibold bg-white border-2 select-none rounded-2xl">
+        <div className="absolute text-2xl text-blue-500 left-4 -top-9">
+          현재 변경 대상
+        </div>
         <div className="w-[130px] h-full flex flex-col justify-center items-center">
           <div>닉네임</div>
-          <div>{selectedUser.nickname || ""}</div>
+          <div>{rclPrevResv.nickname || ""}</div>
         </div>
         <div className="w-[130px] h-full flex flex-col justify-center items-center">
           <div>예약 번호</div>
-          <div>{selectedUser.resvID || ""}</div>
+          <div>{rclPrevResv.resvID || ""}</div>
         </div>
         <div className="w-[130px] h-full flex flex-col justify-center items-center">
           <div>차량 번호</div>
-          <div>{selectedUser.carNumber || ""}</div>
+          <div>{rclPrevResv.carNumber || ""}</div>
         </div>
         <div className="w-[130px] h-full flex flex-col justify-center items-center">
           <div>시작 날짜</div>
-          <div>{selectedUser.startDate || ""}</div>
+          <div>
+            {rclPrevResv.startDate
+              ? dayjs(rclPrevResv.startDate).format("YY-MM-DD")
+              : ""}
+          </div>
+          <div>
+            {rclPrevResv.startTime
+              ? dayjs("2000-01-01T" + rclPrevResv.startTime).format("HH시 mm분")
+              : ""}
+          </div>
         </div>
         <div className="w-[130px] h-full flex flex-col justify-center items-center">
           <div>종료 날짜</div>
-          <div>{selectedUser.endDate || ""}</div>
+          <div>
+            {rclPrevResv.endDate
+              ? dayjs(rclPrevResv.endDate).format("YY-MM-DD")
+              : ""}
+          </div>
+          <div>
+            {rclPrevResv.endTime
+              ? dayjs("2000-01-01T" + rclPrevResv.endTime).format("HH시 mm분")
+              : ""}
+          </div>
         </div>
       </div>
-      <div className="text-lg font-semibold">인 예약 수정중...</div>
+
       <div className="flex items-center justify-around mt-5">
         {/* 날짜 시간 선택 메뉴 */}
         <div className="bg-sky-200 w-[400px] h-[400px] rounded-2xl flex flex-col justify-center items-center">
@@ -204,16 +231,21 @@ const DateTime = ({ handleNext }) => {
                 className="flex items-center justify-center px-12 py-2 mt-5 text-xl transition-all ease-in bg-blue-200 rounded-lg hover:bg-amber-400"
                 onClick={() => {
                   if (startDate && endDate && startTime && endTime) {
-                    setNewResvInfo({
-                      ...newResvInfo,
-                      startDate: startDate,
-                      endDate: endDate,
-                      startTime: startTime,
-                      endTime: endTime,
+                    setRclAltResv({
+                      ...rclAltResv,
+                      startDate: dayjs(startDate).format("YYYY-MM-DD"),
+                      startTime: dayjs("2000-01-01T" + startTime).format(
+                        "HH:mm:ss"
+                      ),
+                      endDate: dayjs(endDate).format("YYYY-MM-DD"),
+                      endTime: dayjs("2000-01-01T" + endTime).format(
+                        "HH:mm:ss"
+                      ),
                     });
+
                     handleNext();
                   } else {
-                    console.log("안됨");
+                    alert.onAndOff("날짜와 시간 모두 설정해 주세요");
                   }
                 }}
               >
@@ -229,6 +261,7 @@ const DateTime = ({ handleNext }) => {
             </>
           )}
         </div>
+        {alertState.state ? <Alert></Alert> : null}
       </div>
     </>
   );
