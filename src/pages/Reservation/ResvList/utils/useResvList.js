@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 export const useResvList = function (maxRow) {
+  // 한 페이지의 최대 row
   const MAX_ROW = maxRow;
 
   // 더미 데이터 넣어둠, 나중에 서버에서 불러올 것
@@ -9,46 +10,47 @@ export const useResvList = function (maxRow) {
       nickname: "nickname1",
       resvID: 12345,
       carNumber: "12삼4567",
-      startDate: "startDate",
-      endDate: "endDate",
+      startDate: "2023-01-01T11:30:00",
+      endDate: "2023-01-02T11:30:00",
     },
     {
       nickname: "nickname2",
       resvID: 12345,
       carNumber: "12삼4567",
-      startDate: "startDate",
-      endDate: "endDate",
+      startDate: "2023-01-01T11:30:00",
+      endDate: "2023-01-02T11:30:00",
     },
     {
       nickname: "nickname3",
       resvID: 12345,
       carNumber: "12삼4567",
-      startDate: "startDate",
-      endDate: "endDate",
+      startDate: "2023-01-01T11:30:00",
+      endDate: "2023-01-02T11:30:00",
     },
     {
       nickname: "nickname4",
       resvID: 12345,
       carNumber: "12삼4567",
-      startDate: "startDate",
-      endDate: "endDate",
+      startDate: "2023-01-01T11:30:00",
+      endDate: "2023-01-02T11:30:00",
     },
     {
       nickname: "nickname5",
       resvID: 12345,
       carNumber: "12삼4567",
-      startDate: "startDate",
-      endDate: "endDate",
+      startDate: "2023-01-01T11:30:00",
+      endDate: "2023-01-02T11:30:00",
     },
     {
       nickname: "nickname6",
       resvID: 12345,
       carNumber: "12삼4567",
-      startDate: "startDate",
-      endDate: "endDate",
+      startDate: "2023-01-01T11:30:00",
+      endDate: "2023-01-02T11:30:00",
     },
   ]);
 
+  // 최대 페이지 수
   const [maxPage, setMaxPage] = useState(1);
 
   useEffect(() => {
@@ -67,8 +69,14 @@ export const useResvList = function (maxRow) {
     const temp = resvs.slice((page - 1) * MAX_ROW, page * MAX_ROW);
     if (temp.length < MAX_ROW) {
       for (let start = temp.length; start < MAX_ROW; start++) {
-        const nullObj = {};
-        Object.keys(temp[0]).map((propName, idx) => (nullObj[propName] = null));
+        const nullObj = {
+          nickname: null,
+          resvID: null,
+          carNumber: null,
+          startDate: null,
+          endDate: null,
+        };
+
         temp.push(nullObj);
       }
     }
@@ -76,7 +84,21 @@ export const useResvList = function (maxRow) {
   };
 
   ctrl.findByNickname = function (nickname) {
-    return resvs.filter((item, idx) => item.nickname === nickname);
+    const temp = resvs.filter((item, idx) => item.nickname === nickname);
+    if (temp.length < MAX_ROW) {
+      for (let start = temp.length; start < MAX_ROW; start++) {
+        const nullObj = {
+          nickname: null,
+          resvID: null,
+          carNumber: null,
+          startDate: null,
+          endDate: null,
+        };
+
+        temp.push(nullObj);
+      }
+    }
+    return temp;
   };
 
   return ctrl;

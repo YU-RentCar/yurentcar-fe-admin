@@ -2,14 +2,18 @@ import { useEffect, useState } from "react";
 import { MdSearch, MdArrowBack, MdArrowForward } from "react-icons/md";
 import useResvList from "./utils/useResvList";
 import { useRecoilState } from "recoil";
-import { reservationAtom, selectedInfoAtom } from "recoil/reservationAtom";
+import { altResvAtom, prevResvAtom } from "recoil/reservationAtom";
+import dayjs from "dayjs";
 
 const ResvList = ({ handleNext }) => {
   // 페이지 조작을 위한 커스텀 훅
   const ctrl = useResvList(4);
 
-  const [rclResvAtom, setRclResvAtom] = useRecoilState(reservationAtom);
-  const [rclSelected, setRclSelected] = useRecoilState(selectedInfoAtom);
+  // 새로운 예약 정보 저장
+  const [rclAltResv, setRclAltResv] = useRecoilState(altResvAtom);
+
+  // 기존 예약 정보 저장
+  const [rclPrevResv, setRclPrevResv] = useRecoilState(prevResvAtom);
 
   // 현재 페이지 쪽수
   const [pageNum, setPageNum] = useState(1);
@@ -74,7 +78,10 @@ const ResvList = ({ handleNext }) => {
               차량 번호
             </div>
             <div className="w-[269px] h-full flex justify-center items-center">
-              시작/종료 시간
+              시작 시간
+            </div>
+            <div className="w-[269px] h-full flex justify-center items-center">
+              종료 시간
             </div>
             <div className="w-[269px] h-full flex justify-center items-center"></div>
           </div>
@@ -96,26 +103,33 @@ const ResvList = ({ handleNext }) => {
                   {v.carNumber || ""}
                 </div>
                 <div className="w-[269px] h-full flex justify-center items-center">
-                  {v.startDate || ""} {v.startDate && v.endDate && "/"}
-                  {v.endDate || ""}
+                  {v.startDate
+                    ? dayjs(v.startDate).format("YY-MM-DD / HH:mm")
+                    : ""}
+                </div>
+                <div className="w-[269px] h-full flex justify-center items-center">
+                  {v.endDate ? dayjs(v.endDate).format("YY-MM-DD / HH:mm") : ""}
                 </div>
                 <div className="w-[269px] h-full flex justify-center items-center">
                   {v.nickname === null ? null : (
                     <div
                       className="py-2 bg-blue-500 rounded-full px-[40px] hover:bg-amber-400"
                       onClick={() => {
-                        console.log(curPage[i]);
-                        setRclResvAtom({
-                          ...rclResvAtom,
+                        setRclAltResv({
+                          ...rclAltResv,
                           nickname: v.nickname,
                         });
-                        setRclSelected({
-                          nickname: v.nickname,
+
+                        setRclPrevResv({
                           resvID: v.resvID,
+                          nickname: v.nickname,
                           carNumber: v.carNumber,
-                          startDate: v.startDate,
-                          endDate: v.endDate,
+                          startDate: dayjs(v.startDate).format("YYYY-MM-DD"),
+                          startTime: dayjs(v.startDate).format("HH:mm:ss"),
+                          endDate: dayjs(v.endDate).format("YYYY-MM-DD"),
+                          endTime: dayjs(v.endDate).format("HH:mm:ss"),
                         });
+
                         handleNext();
                       }}
                     >
