@@ -49,7 +49,7 @@ const DefaultInfo = React.memo(() => {
           setNewDefault(tmp);
           // 차량 사진
           setImgSrc(
-            `http://be.yurentcar.kro.kr:1234/api/v1/images/display/${newDefault.carName}.png`
+            `http://be.yurentcar.kro.kr:1234/api/v1/images/display/${response.data.carName}.png`
           );
         })
         .catch((error) => {
