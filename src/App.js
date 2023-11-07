@@ -3,6 +3,7 @@ import Car from "pages/Car/Car";
 import CarState from "pages/CarState/CarState";
 import ManageCar from "pages/ManageCar/ManageCar";
 import Map from "pages/Map/Map";
+import Point from "pages/Point/Point";
 import { useEffect } from "react";
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
 
@@ -23,6 +24,7 @@ function App() {
           <Route path="/map" element={<Map />}></Route>
           <Route path="/car" element={<Car />}></Route>
           <Route path="/managecar" element={<ManageCar />}></Route>
+          <Route path="/point" element={<Point />}></Route>
         </Routes>
       </div>
     </>
