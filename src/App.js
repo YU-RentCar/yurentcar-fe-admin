@@ -1,10 +1,18 @@
 import SideBar from "components/SideBar";
+import Car from "pages/Car/Car";
 import CarState from "pages/CarState/CarState";
+import ManageCar from "pages/ManageCar/ManageCar";
 import Map from "pages/Map/Map";
 import Reservation from "pages/Reservation/Reservation";
-import { Route, Routes } from "react-router-dom";
+import { useEffect } from "react";
+import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
 
 function App() {
+  const nav = useNavigate();
+  const location = useLocation();
+  useEffect(() => {
+    if (location.pathname.split("/")[1] === "managecar") nav("/car");
+  }, []);
   return (
     <>
       <div className="w-full min-h-screen bg-slate-50">
@@ -15,6 +23,8 @@ function App() {
           <Route path="/carstate" element={<CarState />}></Route>
           <Route path="/map" element={<Map />}></Route>
           <Route path="/Reservation" element={<Reservation />}></Route>
+          <Route path="/car" element={<Car />}></Route>
+          <Route path="/managecar" element={<ManageCar />}></Route>
         </Routes>
       </div>
     </>

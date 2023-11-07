@@ -23,7 +23,11 @@ const SideBar = () => {
       icon: <MdHandyman className="text-[35px]" />,
       path: "/carstate",
     },
-    { name: "차 관리", icon: <MdDriveEta className="text-[35px]" /> },
+    {
+      name: "차 관리",
+      icon: <MdDriveEta className="text-[35px]" />,
+      path: "/car",
+    },
     { name: "차 키 관리", icon: <MdVpnKey className="text-[35px]" /> },
     {
       name: "예약 변경",
