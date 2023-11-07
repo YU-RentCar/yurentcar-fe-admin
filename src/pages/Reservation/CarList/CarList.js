@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
-import { MdSearch, MdArrowBack, MdArrowForward } from "react-icons/md";
-import useResvList from "./utils/useResvList";
+import React from "react";
 import { useRecoilState } from "recoil";
+import { MdSearch, MdArrowBack, MdArrowForward } from "react-icons/md";
 import { reservationAtom, selectedInfoAtom } from "recoil/reservationAtom";
+import { useEffect, useState, useRef } from "react";
+import useCarList from "./utils/useCarList";
 
-const ResvList = ({ handleNext }) => {
+const CarList = () => {
   // 페이지 조작을 위한 커스텀 훅
-  const ctrl = useResvList(4);
+  const ctrl = useCarList(4);
 
   const [rclResvAtom, setRclResvAtom] = useRecoilState(reservationAtom);
   const [rclSelected, setRclSelected] = useRecoilState(selectedInfoAtom);
@@ -25,7 +26,21 @@ const ResvList = ({ handleNext }) => {
 
   useEffect(() => {
     setCurPage(ctrl.getPage(pageNum));
+    console.log("atom 확인 ", rclResvAtom);
+    console.log("이전 확인 ", rclSelected);
   }, [pageNum]);
+
+  const [selectedUser, _] = useRecoilState(selectedInfoAtom);
+
+  // 새로 변경할 예약 내용을 저장
+  const [newResvInfo, setNewResvInfo] = useRecoilState(reservationAtom);
+
+  const [isPopUpShow, setIsPopUpShow] = useState(false);
+
+  useEffect(() => {
+    console.log(selectedUser);
+    console.log(newResvInfo);
+  }, []);
 
   return (
     <>
@@ -34,14 +49,14 @@ const ResvList = ({ handleNext }) => {
           <div className="relative flex items-center justify-center w-full h-[50px] px-8 mt-12">
             {/* 타이틀 */}
             <span className="absolute text-3xl font-bold text-blue-500 left-8">
-              지점 예약 리스트
+              예약 가능 차량 리스트
             </span>
 
             <div className="flex items-center h-full l">
               {/* 번호 검색 */}
               <input
                 className="h-full px-8 text-xl font-semibold border-4 border-blue-500 rounded-full w-"
-                placeholder="사용자의 닉네임을 입력"
+                placeholder="차량의 이름을 입력"
                 value={findInput}
                 onChange={(e) => setFindInput(e.target.value)}
               />
@@ -50,7 +65,7 @@ const ResvList = ({ handleNext }) => {
                 className="ml-4 text-5xl text-blue-500"
                 onClick={() => {
                   if (findInput.trim() !== "") {
-                    setCurPage(ctrl.findByNickname(findInput.trim()));
+                    setCurPage(ctrl.findByCarName(findInput.trim()));
                     setIsFinding(true);
                   } else {
                     setCurPage(ctrl.getPage(pageNum));
@@ -64,19 +79,14 @@ const ResvList = ({ handleNext }) => {
           </div>
           {/* 타이틀 */}
           <div className="flex items-center w-full h-20 pl-4 pr-8 mt-8 text-xl font-semibold border-b-2 border-b-black">
-            <div className="w-[269px] h-full flex justify-center items-center">
-              닉네임
+            <div className="w-[500px] h-full flex justify-center items-center">
+              차량 이름
             </div>
-            <div className="w-[269px] h-full flex justify-center items-center">
-              예약 번호
-            </div>
-            <div className="w-[269px] h-full flex justify-center items-center">
+            <div className="w-[500px] h-full flex justify-center items-center">
               차량 번호
             </div>
-            <div className="w-[269px] h-full flex justify-center items-center">
-              시작/종료 시간
-            </div>
-            <div className="w-[269px] h-full flex justify-center items-center"></div>
+
+            <div className="w-[500px] h-full flex justify-center items-center"></div>
           </div>
           {/* 리스트 */}
           {curPage.map((v, i) => {
@@ -86,40 +96,30 @@ const ResvList = ({ handleNext }) => {
                 className="flex items-center w-full h-16 pl-4 pr-8 text-lg font-semibold border-b-2 border-t-slate-300"
                 key={i}
               >
-                <div className="w-[269px] h-full flex justify-center items-center">
-                  {v.nickname || ""}
+                <div className="w-[500px] h-full flex justify-center items-center">
+                  {v.carName || ""}
                 </div>
-                <div className="w-[269px] h-full flex justify-center items-center">
-                  {v.resvID || ""}
-                </div>
-                <div className="w-[269px] h-full flex justify-center items-center">
+                <div className="w-[500px] h-full flex justify-center items-center">
                   {v.carNumber || ""}
                 </div>
-                <div className="w-[269px] h-full flex justify-center items-center">
-                  {v.startDate || ""} {v.startDate && v.endDate && "/"}
-                  {v.endDate || ""}
-                </div>
-                <div className="w-[269px] h-full flex justify-center items-center">
-                  {v.nickname === null ? null : (
+
+                <div className="w-[500px] h-full flex justify-center items-center">
+                  {v.carName === null ? null : (
                     <div
                       className="py-2 bg-blue-500 rounded-full px-[40px] hover:bg-amber-400"
                       onClick={() => {
-                        console.log(curPage[i]);
-                        setRclResvAtom({
-                          ...rclResvAtom,
-                          nickname: v.nickname,
-                        });
-                        setRclSelected({
-                          nickname: v.nickname,
-                          resvID: v.resvID,
+                        setNewResvInfo({
+                          startDate:
+                            rclResvAtom.startDate + rclResvAtom.startTime,
+                          endDate: rclResvAtom.endDate + rclResvAtom.endTime,
                           carNumber: v.carNumber,
-                          startDate: v.startDate,
-                          endDate: v.endDate,
+                          carName: v.carName,
                         });
-                        handleNext();
+
+                        setIsPopUpShow(!isPopUpShow);
                       }}
                     >
-                      선택
+                      예약 변경
                     </div>
                   )}
                 </div>
@@ -150,9 +150,34 @@ const ResvList = ({ handleNext }) => {
             />
           </div>
         ) : null}
+
+        {/* 팝업 */}
+        {isPopUpShow ? (
+          <div className="fixed flex items-center justify-center w-full h-full -mt-[300px]">
+            <div className="w-[800px] h-[300px] bg-white border-4 border-blue-500 rounded-2xl flex justify-center flex-col items-center">
+              <div className="pb-8 text-3xl font-bold text-blue-500">
+                최종 확인
+              </div>
+              <div>{`${rclSelected.nickname} 사용자의 차량번호 : ${rclSelected.carNumber} 에 대한`}</div>
+              <div>{`${rclSelected.startDate} ~ ${rclSelected.endDate} 까지의 예약을`}</div>
+              <div>{`${newResvInfo.carName} : ${newResvInfo.carNumber} ${newResvInfo.startDate} ~ ${newResvInfo.endDate} 에 대한 예약으로 변경하겠습니까?`}</div>
+              <div className="flex justify-between select-none">
+                <div className="flex items-center justify-center px-8 py-3 mx-2 bg-blue-200 rounded-full">
+                  확인
+                </div>
+                <div
+                  className="flex items-center justify-center px-8 py-3 mx-2 bg-red-200 rounded-full"
+                  onClick={() => setIsPopUpShow(false)}
+                >
+                  취소
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
     </>
   );
 };
 
-export default ResvList;
+export default CarList;

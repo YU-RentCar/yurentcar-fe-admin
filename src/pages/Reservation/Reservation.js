@@ -5,6 +5,7 @@ import { useRecoilState } from "recoil";
 import { nicknameSelector } from "recoil/reservationAtom";
 import ResvList from "./ResvList/ResvList";
 import DateTime from "./DateTime/DateTime";
+import CarList from "./CarList/CarList";
 
 const Reservation = () => {
   const [activeStep, setActiveStep] = useState(0);
@@ -22,12 +23,12 @@ const Reservation = () => {
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="flex flex-col items-center justify-center w-full select-none">
-        <div className="w-[1140px] flex flex-col justify-center items-center mb-10">
+        <div className="w-[1140px] flex flex-col justify-center items-center mb-5">
           <div className="text-[50px] font-bold self-start mt-[80px]">
             예약 변경
           </div>
         </div>
-        <div className="w-[800px] px-24 pt-4 pb-[100px]">
+        <div className="w-[800px] px-24 pb-[100px]">
           <Stepper
             activeStep={activeStep}
             isLastStep={(value) => setIsLastStep(value)}
@@ -50,7 +51,7 @@ const Reservation = () => {
                 </Typography>
               </div>
             </Step>
-            <Step onClick={() => setActiveStep(1)}>
+            <Step onClick={() => (activeStep < 1 ? null : setActiveStep(1))}>
               <MdFavorite className="w-5 h-5" />
               <div className="absolute -bottom-[4.5rem] w-max text-center">
                 <Typography
@@ -67,7 +68,7 @@ const Reservation = () => {
                 </Typography>
               </div>
             </Step>
-            <Step onClick={() => setActiveStep(2)}>
+            <Step onClick={() => (activeStep < 2 ? null : setActiveStep(2))}>
               <MdFavorite className="w-5 h-5" />
               <div className="absolute -bottom-[4.5rem] w-max text-center">
                 <Typography
@@ -98,7 +99,7 @@ const Reservation = () => {
       </div>
       {activeStep === 0 ? <ResvList handleNext={handleNext}></ResvList> : null}
       {activeStep === 1 ? <DateTime handleNext={handleNext}></DateTime> : null}
-      {activeStep === 2 ? <div>ww3</div> : null}
+      {activeStep === 2 ? <CarList></CarList> : null}
     </div>
   );
 };
