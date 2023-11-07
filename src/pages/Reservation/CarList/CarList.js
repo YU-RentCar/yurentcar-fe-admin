@@ -1,22 +1,21 @@
 import React from "react";
 import { useRecoilState } from "recoil";
 import { MdSearch, MdArrowBack, MdArrowForward } from "react-icons/md";
-import { reservationAtom, selectedInfoAtom } from "recoil/reservationAtom";
 import { useEffect, useState, useRef } from "react";
 import useCarList from "./utils/useCarList";
+import { altResvAtom, prevResvAtom } from "recoil/reservationAtom";
+import dayjs from "dayjs";
 
 const CarList = () => {
   // 페이지 조작을 위한 커스텀 훅
   const ctrl = useCarList(4);
 
-  const [rclResvAtom, setRclResvAtom] = useRecoilState(reservationAtom);
-  const [rclSelected, setRclSelected] = useRecoilState(selectedInfoAtom);
-
-  // 현재 페이지 쪽수
-  const [pageNum, setPageNum] = useState(1);
+  const [rclAltResv, setRclAltResv] = useRecoilState(altResvAtom);
+  const [rclPrevResv, setRclPrevResv] = useRecoilState(prevResvAtom);
 
   // 검색 input
   const [findInput, setFindInput] = useState("");
+  const [findTarget, setFindTarget] = useState("");
 
   // 검색중을 확인하는 boolean
   const [isFinding, setIsFinding] = useState(false);
@@ -24,23 +23,20 @@ const CarList = () => {
   // 현재 페이지의 내용
   const [curPage, setCurPage] = useState([]);
 
-  useEffect(() => {
-    setCurPage(ctrl.getPage(pageNum));
-    console.log("atom 확인 ", rclResvAtom);
-    console.log("이전 확인 ", rclSelected);
-  }, [pageNum]);
-
-  const [selectedUser, _] = useRecoilState(selectedInfoAtom);
-
-  // 새로 변경할 예약 내용을 저장
-  const [newResvInfo, setNewResvInfo] = useRecoilState(reservationAtom);
-
   const [isPopUpShow, setIsPopUpShow] = useState(false);
 
   useEffect(() => {
-    console.log(selectedUser);
-    console.log(newResvInfo);
-  }, []);
+    if (isFinding === true) {
+      setCurPage(ctrl.findByCarName(findTarget));
+    } else {
+      setCurPage(ctrl.getPage());
+    }
+  }, [ctrl.getCurPage(), ctrl.getMaxPage()]);
+
+  useEffect(() => {
+    console.log("확인");
+    console.log(rclAltResv);
+  }, [isPopUpShow]);
 
   return (
     <>
@@ -65,10 +61,11 @@ const CarList = () => {
                 className="ml-4 text-5xl text-blue-500"
                 onClick={() => {
                   if (findInput.trim() !== "") {
-                    setCurPage(ctrl.findByCarName(findInput.trim()));
+                    setCurPage(ctrl.findByCarName(findInput));
+                    setFindTarget(findInput);
                     setIsFinding(true);
                   } else {
-                    setCurPage(ctrl.getPage(pageNum));
+                    setCurPage(ctrl.getPage());
                     setIsFinding(false);
                   }
                 }}
@@ -108,10 +105,11 @@ const CarList = () => {
                     <div
                       className="py-2 bg-blue-500 rounded-full px-[40px] hover:bg-amber-400"
                       onClick={() => {
-                        setNewResvInfo({
-                          startDate:
-                            rclResvAtom.startDate + rclResvAtom.startTime,
-                          endDate: rclResvAtom.endDate + rclResvAtom.endTime,
+                        setRclAltResv({
+                          startDate: rclAltResv.startDate,
+                          startTime: rclAltResv.startTime,
+                          endDate: rclAltResv.endDate,
+                          endTime: rclAltResv.endTime,
                           carNumber: v.carNumber,
                           carName: v.carName,
                         });
@@ -128,45 +126,73 @@ const CarList = () => {
           })}
         </div>
         {/* 페이지 */}
-        {!isFinding ? (
-          <div className="w-[300px] flex justify-between items-center mt-10">
-            <MdArrowBack
-              className="text-5xl"
-              onClick={() => {
-                if (pageNum === 1) return;
-                setPageNum(pageNum - 1);
-              }}
-            />
-            <div className="text-lg">
-              Page <span className="text-2xl">{pageNum}</span> of{" "}
-              <span className="text-2xl">{ctrl.getMaxPage()}</span>
-            </div>
-            <MdArrowForward
-              className="text-5xl"
-              onClick={() => {
-                if (pageNum === ctrl.getMaxPage()) return;
-                setPageNum(pageNum + 1);
-              }}
-            />
+
+        <div className="w-[300px] flex justify-between items-center mt-10">
+          <MdArrowBack
+            className="text-5xl"
+            onClick={() => {
+              ctrl.toPrevPage();
+            }}
+          />
+          <div className="text-lg">
+            Page <span className="text-2xl">{ctrl.getCurPage()}</span> of{" "}
+            <span className="text-2xl">{ctrl.getMaxPage()}</span>
           </div>
-        ) : null}
+          <MdArrowForward
+            className="text-5xl"
+            onClick={() => {
+              ctrl.toNextPage();
+            }}
+          />
+        </div>
 
         {/* 팝업 */}
         {isPopUpShow ? (
-          <div className="fixed flex items-center justify-center w-full h-full -mt-[300px]">
-            <div className="w-[800px] h-[300px] bg-white border-4 border-blue-500 rounded-2xl flex justify-center flex-col items-center">
-              <div className="pb-8 text-3xl font-bold text-blue-500">
-                최종 확인
+          <div className="fixed flex items-center justify-center w-full h-full -mt-[200px]">
+            <div className="w-[800px] h-[400px] bg-white border-2 border-blue-500 rounded-2xl flex justify-around flex-col items-start pl-[50px]">
+              <div className="text-3xl font-bold text-blue-500 ">최종 확인</div>
+              <div className="text-xl">{`${rclPrevResv.nickname} 사용자의 예약을`}</div>
+              <div>
+                <div className="text-xl">
+                  <span>{`${dayjs(rclPrevResv.startDate).format(
+                    "YY년 M월 D일"
+                  )} ${dayjs("2000-02-02" + rclPrevResv.startTime).format(
+                    "HH:mm"
+                  )}`}</span>
+                  <span>~</span>
+                  <span>{`${dayjs(rclPrevResv.endDate).format(
+                    "YY년 M월 D일"
+                  )} ${dayjs("2000-02-02" + rclPrevResv.endTime).format(
+                    "HH:mm"
+                  )}`}</span>
+                </div>
+                <div className="text-xl">
+                  <span>{`${rclPrevResv.carNumber} 차량의 예약에서`}</span>
+                </div>
               </div>
-              <div>{`${rclSelected.nickname} 사용자의 차량번호 : ${rclSelected.carNumber} 에 대한`}</div>
-              <div>{`${rclSelected.startDate} ~ ${rclSelected.endDate} 까지의 예약을`}</div>
-              <div>{`${newResvInfo.carName} : ${newResvInfo.carNumber} ${newResvInfo.startDate} ~ ${newResvInfo.endDate} 에 대한 예약으로 변경하겠습니까?`}</div>
+              <div>
+                <div className="text-xl">
+                  <span>{`${dayjs(rclAltResv.startDate).format(
+                    "YY년 M월 D일 "
+                  )}`}</span>
+                  <span>{`${rclAltResv.startTime}`}</span>
+                  <span>~</span>
+                  <span>{`${dayjs(rclAltResv.endDate).format(
+                    "YY년 M월 D일 "
+                  )}`}</span>
+                  <span>{`${rclAltResv.endTime}`}</span>
+                </div>
+                <div className="text-xl">
+                  <span>{`${rclAltResv.carName} `}</span>
+                  <span>{`${rclAltResv.carNumber} 차량의 예약으로 변경하겠습니까?`}</span>
+                </div>
+              </div>
               <div className="flex justify-between select-none">
-                <div className="flex items-center justify-center px-8 py-3 mx-2 bg-blue-200 rounded-full">
+                <div className="flex items-center justify-center px-8 py-3 bg-blue-200 rounded-full hover:bg-blue-500">
                   확인
                 </div>
                 <div
-                  className="flex items-center justify-center px-8 py-3 mx-2 bg-red-200 rounded-full"
+                  className="flex items-center justify-center px-8 py-3 mx-2 bg-gray-300 rounded-full hover:bg-red-500"
                   onClick={() => setIsPopUpShow(false)}
                 >
                   취소

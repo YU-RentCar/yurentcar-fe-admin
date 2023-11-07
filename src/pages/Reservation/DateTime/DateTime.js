@@ -234,13 +234,9 @@ const DateTime = ({ handleNext }) => {
                     setRclAltResv({
                       ...rclAltResv,
                       startDate: dayjs(startDate).format("YYYY-MM-DD"),
-                      startTime: dayjs("2000-01-01T" + startTime).format(
-                        "HH:mm:ss"
-                      ),
+                      startTime: startTime,
                       endDate: dayjs(endDate).format("YYYY-MM-DD"),
-                      endTime: dayjs("2000-01-01T" + endTime).format(
-                        "HH:mm:ss"
-                      ),
+                      endTime: endTime,
                     });
 
                     handleNext();

@@ -1,8 +1,10 @@
 import { Stepper, Step, Button, Typography } from "@material-tailwind/react";
 import { useEffect, useState, useRef } from "react";
-import { MdFavorite } from "react-icons/md";
-import { useRecoilState } from "recoil";
-import { nicknameSelector } from "recoil/reservationAtom";
+import {
+  MdOutlineCalendarMonth,
+  MdAccessibilityNew,
+  MdDirectionsCar,
+} from "react-icons/md";
 import ResvList from "./ResvList/ResvList";
 import DateTime from "./DateTime/DateTime";
 import CarList from "./CarList/CarList";
@@ -12,7 +14,6 @@ const Reservation = () => {
   const [isLastStep, setIsLastStep] = useState(false);
   const [isFirstStep, setIsFirstStep] = useState(false);
 
-  const [rclNickname, setRclNickname] = useRecoilState(nicknameSelector);
   const handleNext = () => !isLastStep && setActiveStep((cur) => cur + 1);
   const handlePrev = () => !isFirstStep && setActiveStep((cur) => cur - 1);
 
@@ -35,7 +36,7 @@ const Reservation = () => {
             isFirstStep={(value) => setIsFirstStep(value)}
           >
             <Step onClick={() => setActiveStep(0)}>
-              <MdFavorite className="w-5 h-5" />
+              <MdAccessibilityNew className="w-5 h-5" />
               <div className="absolute -bottom-[4.5rem] w-max text-center">
                 <Typography
                   variant="h6"
@@ -52,7 +53,7 @@ const Reservation = () => {
               </div>
             </Step>
             <Step onClick={() => (activeStep < 1 ? null : setActiveStep(1))}>
-              <MdFavorite className="w-5 h-5" />
+              <MdOutlineCalendarMonth className="w-5 h-5" />
               <div className="absolute -bottom-[4.5rem] w-max text-center">
                 <Typography
                   variant="h6"
@@ -69,7 +70,7 @@ const Reservation = () => {
               </div>
             </Step>
             <Step onClick={() => (activeStep < 2 ? null : setActiveStep(2))}>
-              <MdFavorite className="w-5 h-5" />
+              <MdDirectionsCar className="w-5 h-5" />
               <div className="absolute -bottom-[4.5rem] w-max text-center">
                 <Typography
                   variant="h6"
@@ -86,15 +87,6 @@ const Reservation = () => {
               </div>
             </Step>
           </Stepper>
-
-          {/* <div className="flex justify-between mt-32">
-            <Button onClick={handlePrev} disabled={isFirstStep}>
-              Prev
-            </Button>
-            <Button onClick={handleNext} disabled={isLastStep}>
-              Next
-            </Button>
-          </div> */}
         </div>
       </div>
       {activeStep === 0 ? <ResvList handleNext={handleNext}></ResvList> : null}
