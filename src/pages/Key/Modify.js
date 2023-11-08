@@ -7,8 +7,14 @@ import {
 } from "@material-tailwind/react";
 import { MdArrowBackIosNew } from "react-icons/md";
 
-const Modify = ({ idx, car, ku }) => {
-  const [stateMenu, setStateMenu] = useState(["사용가능", "수리/점검", "도난"]); // 차량 상태
+const Modify = ({ page, idx, car, ku, setMIdx, setMaxPage }) => {
+  const [newKey, setNewKey] = useState({ ...car }); // 변경된 차량 정보
+  const [stateMenu, setStateMenu] = useState([
+    "마스터키",
+    "사용중",
+    "여분키",
+    "도난",
+  ]); // 차 키 상태
   return (
     <div
       id={idx}
@@ -16,32 +22,41 @@ const Modify = ({ idx, car, ku }) => {
     >
       <div className="w-[200px] flex justify-center items-center h-full">
         <input
-          className="w-5/6 px-4 text-sm border-2 border-blue-600 rounded-full h-4/5"
-          value={car.carName}
-          onChange={(e) => console.log(e.target.value.trim())}
+          className="w-5/6 px-4 text-sm border-2 border-blue-600 rounded-xl h-3/5"
+          value={newKey.carName}
+          onChange={(e) => {
+            const tmp = { ...newKey, carName: e.target.value.trim() };
+            setNewKey(tmp);
+          }}
         ></input>
       </div>
       <div className="w-[200px] flex justify-center items-center h-full">
         <input
-          className="w-5/6 px-4 text-sm border-2 border-blue-600 rounded-full h-4/5"
-          value={car.carNumber}
-          onChange={(e) => console.log(e.target.value.trim())}
+          className="w-5/6 px-4 text-sm border-2 border-blue-600 rounded-xl h-3/5"
+          value={newKey.carNumber}
+          onChange={(e) => {
+            const tmp = { ...newKey, carNumber: e.target.value.trim() };
+            setNewKey(tmp);
+          }}
         ></input>
       </div>
       <div className="w-[200px] flex justify-center items-center h-full">
         <input
-          className="w-5/6 px-4 text-sm border-2 border-blue-600 rounded-full h-4/5"
-          value={car.rfid.replaceAll(" ", "-")}
-          onChange={(e) => console.log(e.target.value.trim())}
+          className="w-5/6 px-4 text-sm border-2 border-blue-600 rounded-xl h-3/5"
+          value={newKey.rfid.replaceAll(" ", "-")}
+          onChange={(e) => {
+            const tmp = { ...newKey, rfid: e.target.value.trim() };
+            setNewKey(tmp);
+          }}
         ></input>
       </div>
       <div className="w-[200px] h-full flex justify-center items-center">
         {/* 검색 */}
         <Menu>
           <MenuHandler>
-            <button className="flex items-center justify-around w-5/6 px-2 text-lg text-white bg-blue-400 rounded-full h-4/5">
+            <button className="flex items-center justify-around w-5/6 px-2 text-lg text-white bg-blue-400 rounded-full h-3/5">
               <span id={`sort${idx}`} className="font-bold">
-                {stateMenu[0]}
+                {car.keyState}
               </span>
               <MdArrowBackIosNew className="-rotate-90" />
             </button>
@@ -52,8 +67,10 @@ const Modify = ({ idx, car, ku }) => {
                 <MenuItem
                   className="flex items-center justify-center text-lg font-bold"
                   onClick={() => {
-                    const target = document.getElementById(`sort${idx}`);
-                    ku.changeMenu("list", target, stateMenu[i], 0);
+                    document.getElementById(`sort${idx}`).innerText =
+                      stateMenu[i];
+                    const tmp = { ...newKey, keyState: stateMenu[i] };
+                    setNewKey(tmp);
                   }}
                   key={i}
                 >
@@ -65,7 +82,14 @@ const Modify = ({ idx, car, ku }) => {
         </Menu>
       </div>
       <div className="w-[250px] h-full flex justify-center items-center">
-        <button className="w-3/5 text-lg font-bold text-white bg-blue-300 rounded-2xl h-4/5 hover:bg-blue-600 hover:shadow-figma">
+        <button
+          className="w-3/5 text-lg font-bold text-white bg-blue-300 rounded-full h-3/5 hover:bg-blue-600 hover:shadow-figma"
+          onClick={() => {
+            const tmp = ku.changeInfo(page, idx, newKey);
+            setMaxPage({ num: Math.ceil(tmp.length / 6) });
+            setMIdx(-1);
+          }}
+        >
           저장
         </button>
       </div>
