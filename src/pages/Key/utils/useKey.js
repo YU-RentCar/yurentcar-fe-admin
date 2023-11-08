@@ -84,15 +84,19 @@ export const useKey = function () {
     return tmp;
   };
   // 선택 메뉴로 변경 함수
-  ku.changeMenu = function (target, newMenu, index) {
-    const tmp = [...keys];
-    const after = {
-      ...tmp[index],
-      afterChange: newMenu, // 변화된 상태
-    };
-    tmp.splice(index, 1, after); // 바뀐 객체로 변경
-    setKeys(tmp);
-    target.innerText = newMenu;
+  ku.changeMenu = function (type, target, newMenu, index) {
+    if (type === "title") {
+      target.innerText = newMenu;
+    } else {
+      const tmp = [...keys];
+      const after = {
+        ...tmp[index],
+        afterChange: newMenu, // 변화된 상태
+      };
+      tmp.splice(index, 1, after); // 바뀐 객체로 변경
+      setKeys(tmp);
+      target.innerText = newMenu;
+    }
   };
   // 특정 페이지의 6개 가져오기
   ku.getPageKeys = function (page) {
