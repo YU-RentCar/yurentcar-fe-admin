@@ -29,7 +29,11 @@ const SideBar = () => {
       path: "/car",
     },
     { name: "차 키 관리", icon: <MdVpnKey className="text-[35px]" /> },
-    { name: "예약 변경", icon: <MdEditCalendar className="text-[35px]" /> },
+    {
+      name: "예약 변경",
+      icon: <MdEditCalendar className="text-[35px]" />,
+      path: "/reservation",
+    },
     {
       name: "주차장 관리",
       icon: <MdLocalParking className="text-[35px]" />,
