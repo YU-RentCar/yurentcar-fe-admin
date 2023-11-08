@@ -1,7 +1,9 @@
 import { useAlert } from "utils/useAlert";
+import { usePopUp } from "utils/usePopUp";
 
-const Normal = ({ idx, car, ku, mIdx, setMIdx, setMaxPage }) => {
-  const alert = useAlert();
+const Normal = ({ idx, car, ku, mIdx, setMIdx, setDelTarget, setMaxPage }) => {
+  const popUp = usePopUp("Key/Delete"); // 팝업 제어
+  const alert = useAlert(); // alert 제어
   return (
     <div
       id={idx}
@@ -40,8 +42,8 @@ const Normal = ({ idx, car, ku, mIdx, setMIdx, setMaxPage }) => {
             <button
               className="w-24 h-10 text-base text-red-300 border-2 border-red-300 rounded-full hover:shadow-figma"
               onClick={() => {
-                const tmp = ku.deleteKey(car); // 해당 차량 삭제
-                setMaxPage({ num: Math.ceil(tmp.length / 6) }); // 검색 결과 -> 새로운 데이터 셋
+                setDelTarget(car); // 삭제 타겟 지정
+                popUp.toggle(); // 삭제 팝업
               }}
             >
               삭제

@@ -1,10 +1,12 @@
 import Normal from "./Normal";
 import Modify from "./Modify";
 import Alert from "popUp/Alert";
+import Delete from "popUp/Key/Delete";
 import { useRecoilValue } from "recoil";
 import { alertAtom } from "recoil/alertAtom";
 import { useEffect, useState } from "react";
 import { useKey } from "./utils/useKey";
+import { usePopUp } from "utils/usePopUp";
 import {
   Menu,
   MenuHandler,
@@ -20,9 +22,11 @@ import {
 
 const Key = () => {
   const ku = useKey(); // Key 의 Utils
+  const popUp = usePopUp("Key/Delete"); // Delete 팝업 제어
   const alertInfo = useRecoilValue(alertAtom); // alert 제어
   const [page, setPage] = useState(1); // 현재 페이지
   const [maxPage, setMaxPage] = useState({ num: 1 }); // 최대 페이지
+  const [delTarget, setDelTarget] = useState({}); // 삭제 타겟
   const [filterMenu, setFilterMenu] = useState([
     "전체",
     "마스터키",
@@ -132,6 +136,7 @@ const Key = () => {
                 ku={ku}
                 mIdx={mIdx}
                 setMIdx={setMIdx}
+                setDelTarget={setDelTarget}
                 setMaxPage={setMaxPage}
               />
             ) : (
@@ -171,6 +176,9 @@ const Key = () => {
         </div>
       </div>
       {alertInfo.state ? <Alert /> : null}
+      {popUp.isClicked ? (
+        <Delete delTarget={delTarget} ku={ku} setMaxPage={setMaxPage} />
+      ) : null}
     </>
   );
 };
