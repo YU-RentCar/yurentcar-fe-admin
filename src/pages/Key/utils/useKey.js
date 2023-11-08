@@ -11,55 +11,55 @@ export const useKey = function () {
     },
     {
       carName: "그랜저 HG",
-      carNumber: "12삼4567",
+      carNumber: "22삼4567",
       rfid: "AA BB CC DD",
       keyState: "도난",
     },
     {
       carName: "그랜저 HG",
-      carNumber: "12삼4567",
+      carNumber: "32삼4567",
       rfid: "AA BB CC DD",
       keyState: "도난",
     },
     {
       carName: "그랜저 HG",
-      carNumber: "12삼4567",
+      carNumber: "42삼4567",
       rfid: "AA BB CC DD",
       keyState: "도난",
     },
     {
       carName: "그랜저 HG",
-      carNumber: "12삼4567",
+      carNumber: "52삼4567",
       rfid: "AA BB CC DD",
       keyState: "도난",
     },
     {
       carName: "아반떼",
-      carNumber: "12삼4567",
+      carNumber: "62삼4567",
       rfid: "AA BB CC DD",
       keyState: "여분키",
     },
     {
       carName: "아반떼",
-      carNumber: "12삼4567",
+      carNumber: "72삼4567",
       rfid: "AA BB CC DD",
       keyState: "여분키",
     },
     {
       carName: "아반떼",
-      carNumber: "12삼4567",
+      carNumber: "82삼4567",
       rfid: "AA BB CC DD",
       keyState: "여분키",
     },
     {
       carName: "아반떼",
-      carNumber: "12삼4567",
+      carNumber: "92삼4567",
       rfid: "AA BB CC DD",
       keyState: "여분키",
     },
     {
       carName: "아반떼",
-      carNumber: "12삼4567",
+      carNumber: "102삼4567",
       rfid: "AA BB CC DD",
       keyState: "여분키",
     },
@@ -83,21 +83,6 @@ export const useKey = function () {
     this.setKeys(tmp);
     return tmp;
   };
-  // 선택 메뉴로 변경 함수
-  ku.changeMenu = function (type, target, newMenu, index) {
-    if (type === "title") {
-      target.innerText = newMenu;
-    } else {
-      const tmp = [...keys];
-      const after = {
-        ...tmp[index],
-        afterChange: newMenu, // 변화된 상태
-      };
-      tmp.splice(index, 1, after); // 바뀐 객체로 변경
-      setKeys(tmp);
-      target.innerText = newMenu;
-    }
-  };
   // 특정 페이지의 6개 가져오기
   ku.getPageKeys = function (page) {
     const pageKeys = keys.slice((page - 1) * 6, page * 6);
@@ -119,7 +104,7 @@ export const useKey = function () {
     }
     return tmp;
   };
-  // 차 키 상태 저장
+  // 변경 정보 저장
   ku.saveChange = function () {
     const newKeys = [];
     keys.forEach((v) => {
@@ -129,7 +114,14 @@ export const useKey = function () {
     });
     return newKeys;
   };
-  // 차량 검색
+  // 특정 차 키 정보 변경
+  ku.changeInfo = function (page, idx, newKey) {
+    const tmp = [...keys];
+    tmp.splice((page - 1) * 6 + idx, 1, { ...newKey });
+    this.setKeys(tmp);
+    return tmp;
+  };
+  // 차 키 검색
   ku.searchKeys = function (carNumber, menu) {
     const tmp = [...this.getKeyList()];
     let res;
@@ -138,6 +130,14 @@ export const useKey = function () {
     else res = tmp.filter((v) => v.carNumber === carNumber);
     this.setKeys(res);
     return res;
+  };
+  // 차 키 삭제
+  ku.deleteKey = function (target) {
+    const tmp = [...keys];
+    const idx = tmp.findIndex((key) => key.carNumber === target.carNumber);
+    tmp.splice(idx, 1);
+    this.setKeys(tmp);
+    return tmp;
   };
 
   return ku;
