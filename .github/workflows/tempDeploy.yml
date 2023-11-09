@@ -1,7 +1,7 @@
 name: Build and Deploy
 on:
   push:
-    branches: develop
+    branches: Chore/#23-toast-ui-version
 jobs:
   deploy:
     runs-on: ubuntu-latest
