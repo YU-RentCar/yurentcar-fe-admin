@@ -16,6 +16,7 @@ function App() {
   const location = useLocation();
   useEffect(() => {
     if (location.pathname.split("/")[1] === "managecar") nav("/car");
+    else if (location.pathname.split("/")[1] === "managenotice") nav("/notice");
   }, []);
   return (
     <>
