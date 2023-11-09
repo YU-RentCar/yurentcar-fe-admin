@@ -7,6 +7,7 @@ import Reservation from "pages/Reservation/Reservation";
 import Point from "pages/Point/Point";
 import Key from "pages/Key/Key";
 import Notice from "pages/Notice/Notice";
+import ManageNotice from "pages/ManageNotice/ManageNotice";
 import { useEffect } from "react";
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
 
@@ -31,6 +32,7 @@ function App() {
           <Route path="/point" element={<Point />}></Route>
           <Route path="/key" element={<Key />}></Route>
           <Route path="/notice" element={<Notice />}></Route>
+          <Route path="/managenotice" element={<ManageNotice />}></Route>
         </Routes>
       </div>
     </>
