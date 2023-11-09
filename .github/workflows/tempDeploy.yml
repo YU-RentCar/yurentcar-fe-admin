@@ -18,11 +18,11 @@ jobs:
             ${{ runner.OS }}-build-
             ${{ runner.OS }}-
 
-      - name: Install npm
-        run: npm install
+      - name: Install yarn
+        run: yarn install
 
       - name: Run Build
-        run: CI='false' npm run build
+        run: CI='false' yarn build
 
       - name: Deploy
         uses: appleboy/scp-action@v0.1.4
