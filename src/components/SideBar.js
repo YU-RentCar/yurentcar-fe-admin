@@ -48,7 +48,11 @@ const SideBar = () => {
       icon: <MdMoney className="text-[35px]" />,
       path: "/point",
     },
-    { name: "공지사항 관리", icon: <MdAssignment className="text-[35px]" /> },
+    {
+      name: "공지사항 관리",
+      icon: <MdAssignment className="text-[35px]" />,
+      path: "/notice",
+    },
   ]); // 각 메뉴 + 아이콘
   return (
     <>
