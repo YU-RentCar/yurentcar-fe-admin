@@ -142,7 +142,7 @@ export const useNotice = function () {
     const tmp = [...this.getNoticeList()];
     const res = [];
     tmp.forEach((v) => {
-      if (v.includes(title)) res.push(v);
+      if (v.title.includes(title)) res.push(v);
     });
     this.setNotices(res);
     return res;
