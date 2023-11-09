@@ -55,7 +55,7 @@ const Notice = () => {
             <button
               className="h-full text-xl font-semibold text-white bg-blue-400 rounded-full w-44 hover:shadow-figma"
               onClick={() => {
-                nav("/managenotice", { state: { type: "add" } });
+                nav("/managenotice", { state: { type: "add", nu: nu } });
               }}
             >
               공지사항 추가
@@ -97,7 +97,10 @@ const Notice = () => {
                       className="w-[130px] h-2/3 rounded-full bg-slate-200 text-lg font-medium text-slate-500 hover:shadow-figma"
                       onClick={() => {
                         nav("/managenotice", {
-                          state: { type: "modify", noticeId: v.noticeId },
+                          state: {
+                            type: "modify",
+                            noticeId: v,
+                          },
                         });
                       }}
                     >
