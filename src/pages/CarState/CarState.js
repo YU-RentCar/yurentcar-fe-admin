@@ -31,7 +31,7 @@ const CarState = () => {
   useEffect(() => {
     setSix(csu.fillEmpty(csu.getPageItems(1)));
     setNewInfo({ page: 1 });
-  }, [newInfo.maxPage.num]);
+  }, [newInfo.maxPage]);
   return (
     <>
       <div className="flex flex-col items-center justify-center w-full h-screen">
