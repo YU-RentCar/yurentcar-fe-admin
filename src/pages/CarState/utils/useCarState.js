@@ -102,15 +102,17 @@ export const useCarState = function () {
   };
   // 변경된 상태값 서버로 전송
   csu.saveChange = function (adminUsername) {
-    info.cars.forEach((v) => {
+    info.cars.forEach((v, i) => {
       // 상태의 변경이 있는 경우
       if (v.afterChange !== v.carState) {
         const tmp = { carId: v.carId, carState: v.afterChange };
         // 서버로 전송
         saveChange(adminUsername, { ...tmp })
-          .then((response) =>
-            console.log("차량상태 / 상태변경 : ", response.data)
-          )
+          .then((response) => {
+            console.log("차량상태 / 상태변경 : ", response.data);
+            // 변경되었으니 리스트 업데이트
+            if (i === info.cars.length - 1) this.getCarList(adminUsername);
+          })
           .catch((error) => console.log(error.response));
       }
     });
