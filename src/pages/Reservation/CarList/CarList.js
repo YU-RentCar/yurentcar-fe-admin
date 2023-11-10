@@ -5,6 +5,7 @@ import { useEffect, useState, useRef } from "react";
 import useCarList from "./utils/useCarList";
 import { altResvAtom, prevResvAtom } from "recoil/reservationAtom";
 import dayjs from "dayjs";
+import { patchReservation } from "api/changeResvAxios";
 
 const CarList = () => {
   // 페이지 조작을 위한 커스텀 훅
@@ -188,7 +189,20 @@ const CarList = () => {
                 </div>
               </div>
               <div className="flex justify-between select-none">
-                <div className="flex items-center justify-center px-8 py-3 bg-blue-200 rounded-full hover:bg-blue-500">
+                <div
+                  className="flex items-center justify-center px-8 py-3 bg-blue-200 rounded-full hover:bg-blue-500"
+                  onClick={() => {
+                    // patchReservation()
+                    //   .then((response) => {
+                    //     console.log("예약 변경 완료");
+                    //     setIsPopUpShow(false);
+                    //   })
+                    //   .catch((error) => {
+                    //     console.log("예약 변경 실패");
+                    //     setIsPopUpShow(false);
+                    //   });
+                  }}
+                >
                   확인
                 </div>
                 <div

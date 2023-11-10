@@ -1,3 +1,4 @@
+import { getResvList } from "api/changeResvAxios";
 import { useEffect, useState } from "react";
 
 export const useResvList = function (maxRow) {
@@ -55,6 +56,13 @@ export const useResvList = function (maxRow) {
 
   useEffect(() => {
     // 리스트 서버에서 받아오는 코드
+    // getResvList()
+    //   .then((response) => {
+    //     setResvs(response.data);
+    //   })
+    //   .catch((error) => {
+    //     console.log("지점에 걸려있는 예약들을 받아오지 못했다");
+    //   });
 
     setMaxPage(Math.ceil(resvs.length / MAX_ROW));
   }, []);
