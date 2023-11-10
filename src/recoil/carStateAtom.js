@@ -11,7 +11,7 @@ export const carStateAtom = atom({
         carId: -1,
       },
     ], // 차량 리스트
-    maxPage: 0, // 최대 페이지
+    maxPage: { num: 0 }, // 최대 페이지
     page: 0, // 현재 페이지
     filterMenu: ["전체", "사용가능", "수리/점검중", "도난"], // 검색 필터 메뉴
     stateMenu: ["사용가능", "수리/점검중", "도난"], // 상태 메뉴

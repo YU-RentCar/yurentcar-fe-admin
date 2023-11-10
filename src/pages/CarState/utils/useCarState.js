@@ -17,7 +17,10 @@ export const useCarState = function () {
         console.log("차량상태 / 차량조회 : ", response.data);
         const tmp = [...response.data];
         tmp.forEach((v) => (v.afterChange = v.carState)); // 변경 후의 상태 추가
-        setInfo({ cars: [...tmp], maxPage: Math.ceil(tmp.length / 6) }); // 가져온 리스트와 최대 페이지 계산
+        setInfo({
+          cars: [...tmp],
+          maxPage: { num: Math.ceil(tmp.length / 6) },
+        }); // 가져온 리스트와 최대 페이지 계산
       })
       .catch((error) =>
         console.log("차량상태 / 차량조회에러 : ", error.response)
@@ -59,7 +62,10 @@ export const useCarState = function () {
           else {
             // 검색 결과 반영
             tmp.forEach((v) => (v.afterChange = v.carState));
-            setInfo({ cars: [...tmp], maxPage: Math.ceil(tmp.length / 6) });
+            setInfo({
+              cars: [...tmp],
+              maxPage: { num: Math.ceil(tmp.length / 6) },
+            });
           }
         }
         // 차량 번호 검색
@@ -74,7 +80,7 @@ export const useCarState = function () {
             tmp.forEach((v) => (v.afterChange = v.carState));
             setInfo({
               cars: [...tmp],
-              maxPage: Math.ceil(tmp.length / 6),
+              maxPage: { num: Math.ceil(tmp.length / 6) },
             });
           }
         }

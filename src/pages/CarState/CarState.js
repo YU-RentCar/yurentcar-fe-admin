@@ -31,7 +31,7 @@ const CarState = () => {
   useEffect(() => {
     setSix(csu.fillEmpty(csu.getPageItems(1)));
     setNewInfo({ page: 1 });
-  }, [newInfo.maxPage]);
+  }, [newInfo.maxPage.num]);
   return (
     <>
       <div className="flex flex-col items-center justify-center w-full h-screen">
@@ -189,12 +189,12 @@ const CarState = () => {
           />
           <div className="text-lg">
             Page <span className="text-2xl">{newInfo.page}</span> of{" "}
-            <span className="text-2xl">{newInfo.maxPage}</span>
+            <span className="text-2xl">{newInfo.maxPage.num}</span>
           </div>
           <MdArrowForward
             className="text-5xl"
             onClick={() => {
-              if (newInfo.page === newInfo.maxPage) return;
+              if (newInfo.page === newInfo.maxPage.num) return;
               setSix(csu.fillEmpty(csu.getPageItems(newInfo.page + 1)));
               setNewInfo({ page: newInfo.page + 1 });
             }}
