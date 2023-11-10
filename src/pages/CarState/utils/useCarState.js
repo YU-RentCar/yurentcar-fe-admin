@@ -16,6 +16,7 @@ export const useCarState = function () {
       .then((response) => {
         console.log("차량상태 / 차량조회 : ", response.data);
         const tmp = [...response.data];
+        tmp.sort((a, b) => a.carId - b.carId); // carId 대로 정렬
         tmp.forEach((v) => (v.afterChange = v.carState)); // 변경 후의 상태 추가
         setInfo({
           cars: [...tmp],
