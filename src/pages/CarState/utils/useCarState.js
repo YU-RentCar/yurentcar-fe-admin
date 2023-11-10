@@ -93,14 +93,14 @@ export const useCarState = function () {
         saveChange(adminUsername, { ...tmp })
           .then((response) => {
             console.log("차량상태 / 상태변경 : ", response.data);
-            // 변경되었으니 리스트 업데이트
-            console.log("index test : ", i === info.cars.length - 1);
-            if (i === info.cars.length - 1) {
-              console.log("test clear");
-              this.getCarList(adminUsername);
-            }
           })
           .catch((error) => console.log(error.response));
+      }
+      // 변경되었으니 리스트 업데이트
+      console.log("index test : ", i === info.cars.length - 1);
+      if (i === info.cars.length - 1) {
+        console.log("test clear");
+        this.getCarList(adminUsername);
       }
     });
   };
