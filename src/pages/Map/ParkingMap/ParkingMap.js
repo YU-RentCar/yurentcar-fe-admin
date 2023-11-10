@@ -9,6 +9,7 @@ import { alertAtom } from "recoil/alertAtom";
 import option from "./option";
 import colorSet from "./colorSet";
 import MapController from "./MapController";
+import { getMap, setMap } from "api/parkingMapAxios";
 
 const axiosList = [
   { type: "인도", x: 1, y: 1 },
@@ -63,6 +64,24 @@ const ParkingMap = () => {
   // 초기에 서버에 저장되어있는 지도를 가져와 렌더링
   // axiosList로 지도 정보를 받았다고 가정
   useEffect(() => {
+    // getMap()
+    //   .then((response) => {
+    //     for (const item of response) {
+    //       const idx = item.y * mapController.COL + item.x;
+
+    //       rects[idx] = {
+    //         id: idx.toString(),
+    //         x: mapController.getX(idx, zoom),
+    //         y: mapController.getY(idx, zoom),
+    //         fill: colorSet[option[item.type]],
+    //       };
+    //     }
+
+    //     setRects([...rects]);
+    //   })
+    //   .catch((error) => {
+    //     console.log("지도 불러오기 실패");
+    //   });
     for (const item of axiosList) {
       const idx = item.y * mapController.COL + item.x;
 
@@ -228,6 +247,14 @@ const ParkingMap = () => {
     });
 
     console.log(payload);
+
+    // setMap(payload)
+    //   .then((response) => {
+    //     console.log("서버에다 주차장 지도 설정 성공");
+    //   })
+    //   .catch((error) => {
+    //     console.log("서버에다 주차장 등록 실패");
+    //   });
   }
 
   // 클릭 시 색칠
