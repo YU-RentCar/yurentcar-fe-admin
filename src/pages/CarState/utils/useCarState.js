@@ -101,11 +101,19 @@ export const useCarState = function () {
     this.getCarList(adminUsername);
   };
   // 변경된 상태값 서버로 전송
-  csu.saveChange = async function (adminUsername, tmp) {
-    // 서버로 전송
-    await saveChange(adminUsername, { ...tmp })
-      .then((response) => console.log("차량상태 / 상태변경 : ", response.data))
-      .catch((error) => console.log(error.response));
+  csu.saveChange = function (adminUsername) {
+    info.cars.forEach((v) => {
+      // 상태의 변경이 있는 경우
+      if (v.afterChange !== v.carState) {
+        const tmp = { carId: v.carId, carState: v.afterChange };
+        // 서버로 전송
+        saveChange(adminUsername, { ...tmp })
+          .then((response) =>
+            console.log("차량상태 / 상태변경 : ", response.data)
+          )
+          .catch((error) => console.log(error.response));
+      }
+    });
   };
 
   return csu;

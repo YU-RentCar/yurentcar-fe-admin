@@ -45,14 +45,8 @@ const CarState = () => {
               {/* 상태 저장 버튼 */}
               <button
                 className="h-full ml-6 text-xl font-semibold text-white bg-blue-400 rounded-full w-44 hover:shadow-figma"
-                onClick={() => {
-                  newInfo.cars.forEach((v) => {
-                    // 상태의 변경이 있는 경우
-                    if (v.afterChange !== v.carState) {
-                      const tmp = { carId: v.carId, carState: v.afterChange };
-                      csu.saveChange("first_admin", { ...tmp });
-                    }
-                  });
+                onClick={async () => {
+                  await csu.saveChange("first_admin")();
                   // 변경되었으니 리스트 업데이트
                   this.getCarList("first_admin");
                 }}
