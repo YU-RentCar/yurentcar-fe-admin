@@ -1,4 +1,4 @@
-import { getResvList } from "api/resvListAxios";
+import { getResvList } from "api/changeResvAxios";
 import { useEffect, useState } from "react";
 
 export const useResvList = function (maxRow) {

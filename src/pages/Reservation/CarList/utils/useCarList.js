@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getChangeableCarList } from "api/changeResvAxios";
 
 export const useCarList = function (maxRow) {
   // 최대 칸 수
@@ -61,6 +62,14 @@ export const useCarList = function (maxRow) {
 
   useEffect(() => {
     // 리스트 서버에서 받아오는 코드
+    // getChangeableCarList()
+    // .then((response) => {
+    //   setCars(response)
+    // })
+    // .catch((error) => {
+    //   console.log("변경할 수 있는 차량의 리스트 불러오지 못함")
+    // })
+
     setMaxPage(Math.ceil(cars.length / MAX_ROW));
   }, []);
 
