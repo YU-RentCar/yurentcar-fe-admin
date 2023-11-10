@@ -17,7 +17,7 @@ const axiosList = [
   { type: "주차 가능", x: 1, y: 2 },
   { type: "주차 불가능", x: 2, y: 2 },
   { type: "인도", x: 3, y: 3 },
-  { type: "주차 가능", x: 3, y: 4 },
+  { type: "주차 중", x: 3, y: 4 },
   { type: "차도", x: 4, y: 3 },
   { type: "인도", x: 5, y: 3 },
   { type: "주차 불가능", x: 3, y: 5 },
@@ -45,6 +45,8 @@ const ParkingMap = () => {
         x: mapController.getX(i, zoom),
         y: mapController.getY(i, zoom),
         fill: "white",
+        // 타일 보호설정이 걸려 있는지
+        protect: false,
       };
     })
   );
@@ -57,6 +59,7 @@ const ParkingMap = () => {
         x: mapController.getX(i, zoom),
         y: mapController.getY(i, zoom),
         fill: rects[i].fill,
+        protect: rects[i].protect,
       }))
     );
   }, [zoom]);
@@ -90,6 +93,7 @@ const ParkingMap = () => {
         x: mapController.getX(idx, zoom),
         y: mapController.getY(idx, zoom),
         fill: colorSet[option[item.type]],
+        protect: option[item.type] === "carExist",
       };
     }
 
@@ -260,11 +264,10 @@ const ParkingMap = () => {
   // 클릭 시 색칠
   function handleOnClick(e) {
     const id = e.target.attrs.id;
+    console.log(rects[id]);
 
-    if (e.target.attrs.fill === colorSet[option.parkingAvailable]) {
-      // Axios 확인한번 해보기
-      alert.onAndOff("현재 주차중인 차가 있는지 확인 중입니다.");
-
+    if (rects[id].protect === true) {
+      alert.onAndOff("현재 차가 주차되어 있어 변경할 수 없습니다.");
       return;
     }
 
@@ -287,9 +290,8 @@ const ParkingMap = () => {
     const id = e.target.attrs.id;
     console.log(id);
 
-    if (e.target.attrs.fill === colorSet[option.parkingAvailable]) {
-      // Axios 확인한번 해보기
-      alert.onAndOff("현재 주차중인 차가 있는지 확인 중입니다.");
+    if (rects[id].protect === true) {
+      alert.onAndOff("현재 차가 주차되어 있어 변경할 수 없습니다.");
       return;
     }
 
