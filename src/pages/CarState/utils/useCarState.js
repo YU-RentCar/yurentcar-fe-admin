@@ -85,24 +85,17 @@ export const useCarState = function () {
   };
   // 변경된 상태값 서버로 전송
   csu.saveChange = function (adminUsername) {
-    const tmp = [...info.cars];
-    tmp.push({});
-    tmp.forEach((v, i) => {
-      // 상태의 변경이 있는 경우
-      if (i !== info.cars.length) {
-        if (v.afterChange !== v.carState) {
-          const tmp = { carId: v.carId, carState: v.afterChange };
-          // 서버로 전송
-          saveChange(adminUsername, { ...tmp })
-            .then((response) => {
-              console.log("차량상태 / 상태변경 : ", response.data);
-            })
-            .catch((error) => console.log(error.response));
-        }
-      } else {
-        // 변경되었으니 리스트 업데이트
-        this.getCarList(adminUsername);
-      }
+    return new Promise((resolve) => {
+      info.cars.forEach((v, i) => {
+        const tmp = { carId: v.carId, carState: v.afterChange };
+        // 서버로 전송
+        saveChange(adminUsername, { ...tmp })
+          .then((response) => {
+            console.log("차량상태 / 상태변경 : ", response.data);
+            if (i === info.cars.length - 1) resolve();
+          })
+          .catch((error) => console.log(error.response));
+      });
     });
   };
 

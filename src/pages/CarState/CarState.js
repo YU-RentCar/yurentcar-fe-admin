@@ -45,7 +45,10 @@ const CarState = () => {
               {/* 상태 저장 버튼 */}
               <button
                 className="h-full ml-6 text-xl font-semibold text-white bg-blue-400 rounded-full w-44 hover:shadow-figma"
-                onClick={async () => csu.saveChange("first_admin")}
+                onClick={async () => {
+                  await csu.saveChange("first_admin");
+                  csu.getCarList("first_admin");
+                }}
               >
                 차량 상태 저장
               </button>
