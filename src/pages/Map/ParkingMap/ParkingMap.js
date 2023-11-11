@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import { MdZoomIn, MdZoomOut } from "react-icons/md";
 import Alert from "popUp/Alert";
 import { useAlert } from "utils/useAlert";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useRecoilState } from "recoil";
 import { alertAtom } from "recoil/alertAtom";
 import option from "./option";
 import colorSet from "./colorSet";
 import MapController from "./MapController";
 import { getMap, setMap } from "api/parkingMapAxios";
+import { adminAtom } from "recoil/adminAtom";
 
 const axiosList = [
   { type: "인도", x: 1, y: 1 },
@@ -24,6 +25,9 @@ const axiosList = [
 ];
 
 const ParkingMap = () => {
+  // admin 정보 recoil
+  const adminInfo = useRecoilValue(adminAtom);
+
   // 버튼 스타일 상수
   const UNSELECTED_STYLE =
     "flex items-center justify-start p-2 text-xl font-bold border border-gray-500 rounded-2xl";
@@ -67,35 +71,25 @@ const ParkingMap = () => {
   // 초기에 서버에 저장되어있는 지도를 가져와 렌더링
   // axiosList로 지도 정보를 받았다고 가정
   useEffect(() => {
-    // getMap()
-    //   .then((response) => {
-    //     for (const item of response) {
-    //       const idx = item.y * mapController.COL + item.x;
+    getMap(adminInfo)
+      .then((response) => {
+        console.log("지도 불러오기 성공");
+        for (const item of response.data) {
+          const idx = item.y * mapController.COL + item.x;
 
-    //       rects[idx] = {
-    //         id: idx.toString(),
-    //         x: mapController.getX(idx, zoom),
-    //         y: mapController.getY(idx, zoom),
-    //         fill: colorSet[option[item.type]],
-    //       };
-    //     }
-
-    //     setRects([...rects]);
-    //   })
-    //   .catch((error) => {
-    //     console.log("지도 불러오기 실패");
-    //   });
-    for (const item of axiosList) {
-      const idx = item.y * mapController.COL + item.x;
-
-      rects[idx] = {
-        id: idx.toString(),
-        x: mapController.getX(idx, zoom),
-        y: mapController.getY(idx, zoom),
-        fill: colorSet[option[item.type]],
-        protect: option[item.type] === "carExist",
-      };
-    }
+          rects[idx] = {
+            id: idx.toString(),
+            x: mapController.getX(idx, zoom),
+            y: mapController.getY(idx, zoom),
+            fill: colorSet[option[item.type]],
+          };
+        }
+        setRects([...rects]);
+      })
+      .catch((error) => {
+        console.log("지도 불러오기 실패");
+        console.log(error);
+      });
 
     setRects([...rects]);
   }, []);
@@ -232,33 +226,44 @@ const ParkingMap = () => {
 
   // Axios 태워서 보내기만 하면 끝
   function submitMapInfo() {
-    const payload = JSON.stringify({
-      parkingSpotRequestList: rects
-        .map((item) => {
-          return {
-            x: item.x / (mapController.DEFAULT_SIZE * zoom),
-            y: item.y / (mapController.DEFAULT_SIZE * zoom),
-            type: (() => {
-              for (let type in colorSet) {
-                if (item.fill === colorSet[type]) {
-                  return type;
+    const payload = rects
+      .map((item) => {
+        return {
+          x: item.x / (mapController.DEFAULT_SIZE * zoom),
+          y: item.y / (mapController.DEFAULT_SIZE * zoom),
+          type: (() => {
+            for (let type in colorSet) {
+              if (item.fill === colorSet[type]) {
+                switch (type) {
+                  case "sidewalk":
+                    return "인도";
+                  case "driveway":
+                    return "차도";
+                  case "parkingAvailable":
+                    return "주차 가능";
+                  case "parkingDisable":
+                    return "주차 불가능";
+                  default:
+                    return "";
                 }
               }
-            })(),
-          };
-        })
-        .filter((item) => item.type),
-    });
+            }
+          })(),
+        };
+      })
+      .filter((item) => item.type);
 
     console.log(payload);
 
-    // setMap(payload)
-    //   .then((response) => {
-    //     console.log("서버에다 주차장 지도 설정 성공");
-    //   })
-    //   .catch((error) => {
-    //     console.log("서버에다 주차장 등록 실패");
-    //   });
+    setMap(adminInfo, payload)
+      .then((response) => {
+        console.log("서버에다 주차장 지도 설정 성공");
+        console.log(response);
+      })
+      .catch((error) => {
+        console.log("서버에다 주차장 등록 실패");
+        console.log(error);
+      });
   }
 
   // 클릭 시 색칠
