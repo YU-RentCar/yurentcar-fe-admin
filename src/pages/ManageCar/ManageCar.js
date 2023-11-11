@@ -32,7 +32,7 @@ const ManageCar = () => {
             className="flex items-center justify-center h-10 ml-12 text-base font-bold w-28 rounded-xl bg-sky-200 hover:shadow-figma"
             onClick={async () => {
               if (type === "add") {
-              } else if (type === "modify") {
+              } else if (location.state.type === "modify") {
                 console.log("hello", newInfo.picture);
                 const tmp = {
                   carNumber: newInfo.carNumber,
@@ -51,9 +51,45 @@ const ManageCar = () => {
                   repairList: [...newInfo.repairs],
                   accidentList: [...newInfo.accidents],
                 };
-                const formData = new FormData();
+                console.log("tmp : ", tmp);
+                let formData = new FormData();
                 formData.append("file", newInfo.picture);
-                formData.append("carRequest", { ...tmp });
+                Object.keys(tmp).forEach((v, i) => {
+                  if (v === "repairList") {
+                    tmp[v].forEach((val, idx) => {
+                      formData.append(
+                        `carRequest.repairList[${idx}].title`,
+                        val.title
+                      );
+                      formData.append(
+                        `carRequest.repairList[${idx}].eventDate`,
+                        val.eventDate
+                      );
+                      formData.append(
+                        `carRequest.repairList[${idx}].content`,
+                        val.content
+                      );
+                    });
+                  } else if (v === "accidentList") {
+                    tmp[v].forEach((val, idx) => {
+                      formData.append(
+                        `carRequest.accidentList[${idx}].title`,
+                        val.title
+                      );
+                      formData.append(
+                        `carRequest.accidentList[${idx}].eventDate`,
+                        val.eventDate
+                      );
+                      formData.append(
+                        `carRequest.accidentList[${idx}].content`,
+                        val.content
+                      );
+                    });
+                  } else {
+                    formData.append(`carRequest.${v}`, tmp[v]);
+                  }
+                });
+                console.log(formData.get("file"));
 
                 await axios
                   .patch(
