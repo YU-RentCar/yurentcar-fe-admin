@@ -12,18 +12,6 @@ import MapController from "./MapController";
 import { getMap, setMap } from "api/parkingMapAxios";
 import { adminAtom } from "recoil/adminAtom";
 
-const axiosList = [
-  { type: "인도", x: 1, y: 1 },
-  { type: "차도", x: 2, y: 1 },
-  { type: "주차 가능", x: 1, y: 2 },
-  { type: "주차 불가능", x: 2, y: 2 },
-  { type: "인도", x: 3, y: 3 },
-  { type: "주차 중", x: 3, y: 4 },
-  { type: "차도", x: 4, y: 3 },
-  { type: "인도", x: 5, y: 3 },
-  { type: "주차 불가능", x: 3, y: 5 },
-];
-
 const ParkingMap = () => {
   // admin 정보 recoil
   const adminInfo = useRecoilValue(adminAtom);
@@ -49,8 +37,10 @@ const ParkingMap = () => {
         x: mapController.getX(i, zoom),
         y: mapController.getY(i, zoom),
         fill: "white",
+        type: null,
         // 타일 보호설정이 걸려 있는지
         protect: false,
+        carNumber: "",
       };
     })
   );
@@ -63,7 +53,9 @@ const ParkingMap = () => {
         x: mapController.getX(i, zoom),
         y: mapController.getY(i, zoom),
         fill: rects[i].fill,
+        type: rects[i].type,
         protect: rects[i].protect,
+        carNumber: rects[i].carNumber,
       }))
     );
   }, [zoom]);
@@ -82,6 +74,9 @@ const ParkingMap = () => {
             x: mapController.getX(idx, zoom),
             y: mapController.getY(idx, zoom),
             fill: colorSet[option[item.type]],
+            type: item.type,
+            protect: item.type === "주차 중",
+            carNumber: item.carNumber,
           };
         }
         setRects([...rects]);
@@ -90,8 +85,6 @@ const ParkingMap = () => {
         console.log("지도 불러오기 실패");
         console.log(error);
       });
-
-    setRects([...rects]);
   }, []);
 
   return (
@@ -240,7 +233,8 @@ const ParkingMap = () => {
                   case "driveway":
                     return "차도";
                   case "parkingAvailable":
-                    return "주차 가능";
+                    if (item.type === "주차 중") return item.type;
+                    else return "주차 가능";
                   case "parkingDisable":
                     return "주차 불가능";
                   default:
@@ -249,11 +243,10 @@ const ParkingMap = () => {
               }
             }
           })(),
+          carNumber: item.carNumber,
         };
       })
       .filter((item) => item.type);
-
-    console.log(payload);
 
     setMap(adminInfo, payload)
       .then((response) => {
@@ -269,7 +262,6 @@ const ParkingMap = () => {
   // 클릭 시 색칠
   function handleOnClick(e) {
     const id = e.target.attrs.id;
-    console.log(rects[id]);
 
     if (rects[id].protect === true) {
       alert.onAndOff("현재 차가 주차되어 있어 변경할 수 없습니다.");
@@ -293,7 +285,6 @@ const ParkingMap = () => {
   // 더블클릭시 삭제
   function handleOnDblClick(e) {
     const id = e.target.attrs.id;
-    console.log(id);
 
     if (rects[id].protect === true) {
       alert.onAndOff("현재 차가 주차되어 있어 변경할 수 없습니다.");
