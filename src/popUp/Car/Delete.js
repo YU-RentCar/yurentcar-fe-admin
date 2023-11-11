@@ -1,7 +1,10 @@
+import { useRecoilValue } from "recoil";
+import { carAtom } from "recoil/carAtom";
 import { usePopUp } from "utils/usePopUp";
 
-const Delete = ({ delTarget, cu, setMaxPage }) => {
+const Delete = ({ cu }) => {
   const popUpInfo = usePopUp("Car/Delete"); // 팝업 제어
+  const delTarget = useRecoilValue(carAtom); // 차량 관리 recoil
   return (
     <div className="fixed top-0 left-0 z-40 flex items-center justify-center w-screen h-screen bg-black bg-opacity-40">
       <div className="w-[600px] h-[300px] rounded-2xl bg-white flex flex-col justify-center items-center">
@@ -14,9 +17,9 @@ const Delete = ({ delTarget, cu, setMaxPage }) => {
           {/* 삭제하기 버튼 */}
           <button
             className="w-[350px] h-16 bg-sky-200 rounded-2xl text-red-500 font-bold text-2xl"
-            onClick={() => {
-              const tmp = cu.deleteCar({ ...delTarget });
-              setMaxPage({ num: Math.ceil(tmp.length / 6) });
+            onClick={async () => {
+              await cu.deleteCar("first_admin", delTarget.deleteTarget);
+              await cu.getCarList("first_admin");
               popUpInfo.toggle();
             }}
           >

@@ -1,28 +1,30 @@
+import Delete from "popUp/Car/Delete";
+import Alert from "popUp/Alert";
 import { useEffect, useState } from "react";
 import { useCar } from "pages/Car/utils/useCar";
 import { MdSearch, MdArrowBack, MdArrowForward } from "react-icons/md";
 import { usePopUp } from "utils/usePopUp";
 import { useNavigate } from "react-router-dom";
-import Delete from "popUp/Car/Delete";
+import { useRecoilValue, useRecoilState } from "recoil";
+import { carInfoSelector } from "recoil/carAtom";
+import { alertAtom } from "recoil/alertAtom";
 
 const Car = () => {
   const nav = useNavigate(); // nav 제어
   const popUp = usePopUp("Car/Delete"); // Delete 팝업 제어
   const cu = useCar(); // Car 의 Utils
-  const [page, setPage] = useState(1); // 현재 페이지
-  const [maxPage, setMaxPage] = useState({ num: 1 }); // 최대 페이지
+  const [newInfo, setNewInfo] = useRecoilState(carInfoSelector);
   const [six, setSix] = useState([]); // 실제 화면 상에 보여질 6개
   const [searchTarget, setSearchTarget] = useState(""); // 검색할 차량 번호
-  const [delTarget, setDelTarget] = useState({});
   useEffect(() => {
-    const tmp = [...cu.getCarList()]; // 서버로부터 차량 리스트 조회
-    setMaxPage({ num: Math.ceil(tmp.length / 6) });
+    // 서버로부터 차량 리스트 불러오기
+    cu.getCarList("first_admin");
   }, []);
   // maxPage 가 바뀌면 -> 새로운 데이터셋
   useEffect(() => {
-    setSix(cu.fillSix(cu.getPageCars(1)));
-    maxPage ? setPage(1) : setPage(0);
-  }, [maxPage]);
+    setSix(cu.fillEmpty(cu.getPageCars(1)));
+    newInfo.maxPage.num ? setNewInfo({ page: 1 }) : setNewInfo({ page: 0 });
+  }, [newInfo.maxPage]);
   return (
     <>
       <div className="flex flex-col items-center justify-center w-full h-screen">
@@ -37,15 +39,14 @@ const Car = () => {
               <input
                 className="h-full text-xl font-semibold border-2 border-blue-500 rounded-full w-[360px] px-8"
                 placeholder="차량 번호를 입력해주세요"
-                onChange={(e) => setSearchTarget(e.target.value.trim())}
+                onChange={(e) => setSearchTarget(e.target.value)}
               />
               {/* 검색 버튼 */}
               <button
                 className="ml-2 text-4xl text-blue-500"
-                onClick={() => {
-                  const tmp = cu.searchCars(searchTarget);
-                  setMaxPage({ num: Math.ceil(tmp.length / 6) }); // 검색 결과 -> 새로운 데이터 셋
-                }}
+                onClick={() =>
+                  cu.searchCars("first_admin", searchTarget.trim())
+                }
               >
                 <MdSearch />
               </button>
@@ -100,7 +101,11 @@ const Car = () => {
                       className="w-[130px] h-2/3 rounded-full bg-slate-200 text-lg font-medium text-slate-500 hover:shadow-figma"
                       onClick={() => {
                         nav("/managecar", {
-                          state: { type: "modify", carNumber: v.carNumber },
+                          state: {
+                            type: "modify",
+                            carNumber: v.carNumber,
+                            carId: v.carId,
+                          },
                         });
                       }}
                     >
@@ -109,10 +114,7 @@ const Car = () => {
                     <button
                       className="w-[70px] h-2/3 rounded-full border-2 border-red-300 text-lg font-medium text-red-300 hover:shadow-figma"
                       onClick={() => {
-                        setDelTarget({
-                          adminUsername: "",
-                          carId: v.carId,
-                        });
+                        setNewInfo({ deleteTarget: v.carNumber });
                         popUp.toggle();
                       }}
                     >
@@ -129,28 +131,27 @@ const Car = () => {
           <MdArrowBack
             className="text-5xl"
             onClick={() => {
-              if (page === 1) return;
-              setSix(cu.fillSix(cu.getPageCars(page - 1)));
-              setPage(page - 1);
+              if (newInfo.page === 1) return;
+              setSix(cu.fillEmpty(cu.getPageCars(newInfo.page - 1)));
+              setNewInfo({ page: newInfo.page - 1 });
             }}
           />
           <div className="text-lg">
-            Page <span className="text-2xl">{page}</span> of{" "}
-            <span className="text-2xl">{maxPage.num}</span>
+            Page <span className="text-2xl">{newInfo.page}</span> of{" "}
+            <span className="text-2xl">{newInfo.maxPage.num}</span>
           </div>
           <MdArrowForward
             className="text-5xl"
             onClick={() => {
-              if (page === maxPage) return;
-              setSix(cu.fillSix(cu.getPageCars(page + 1)));
-              setPage(page + 1);
+              if (newInfo.page === newInfo.maxPage.num) return;
+              setSix(cu.fillEmpty(cu.getPageCars(newInfo.page + 1)));
+              setNewInfo({ page: newInfo.page + 1 });
             }}
           />
         </div>
       </div>
-      {popUp.isClicked ? (
-        <Delete delTarget={delTarget} cu={cu} setMaxPage={setMaxPage} />
-      ) : null}
+      {popUp.isClicked ? <Delete cu={cu} /> : null}
+      {useRecoilValue(alertAtom).state && <Alert />}
     </>
   );
 };

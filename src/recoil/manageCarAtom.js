@@ -34,6 +34,7 @@ export const manageCarAtom = atom({
       },
     ],
     type: "",
+    isModified: false,
   },
 });
 

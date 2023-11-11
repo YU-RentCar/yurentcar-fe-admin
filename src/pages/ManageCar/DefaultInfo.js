@@ -45,11 +45,13 @@ const DefaultInfo = React.memo(() => {
             discountRate: response.data.discountRate,
             discountReason: response.data.discountRate,
             carDescription: response.data.carDescription,
+            picture: response.data.photoUrl,
+            isModified: false,
           };
           setNewDefault(tmp);
           // 차량 사진
           setImgSrc(
-            `http://be.yurentcar.kro.kr:1234/api/v1/images/display/${response.data.carName}.png`
+            `http://be.yurentcar.kro.kr:1234/api/v1/images/display/${response.data.photoUrl}`
           );
         })
         .catch((error) => {
@@ -79,6 +81,8 @@ const DefaultInfo = React.memo(() => {
                 setImgSrc(e.target.result);
               };
               reader.readAsDataURL(e.target.files[0]);
+              const tmp = { picture: e.target.files[0], isModified: true };
+              setNewDefault(tmp); // 변경 정보 저장
             }}
           />
           <div className="w-[300px] h-[200px] rounded-2xl border-2 border-dashed border-slate-300">
@@ -103,16 +107,39 @@ const DefaultInfo = React.memo(() => {
                   {`${title.default[v]} : `}
                 </span>
                 <input
+                  type={
+                    v === "afterPrice" ||
+                    v === "beforePrice" ||
+                    v === "totalDistance" ||
+                    v === "discountRate"
+                      ? "number"
+                      : "text"
+                  }
                   className="w-[200px] px-2 ml-2 text-lg font-semibold border-2 border-blue-600 rounded-lg"
                   value={newDefault[v]}
                   onChange={(e) => {
                     const tmp = {};
-                    tmp[v] = e.target.value;
+                    v === "afterPrice" ||
+                    v === "beforePrice" ||
+                    v === "totalDistance" ||
+                    v === "discountRate"
+                      ? (tmp[v] = Number(e.target.value))
+                      : (tmp[v] = e.target.value);
                     setNewDefault(tmp); // 변경 정보 저장
                   }}
                 />
                 <span className="ml-2 text-lg font-semibold">
-                  {`${i === 2 ? "km" : i === 3 ? "원" : i === 4 ? "%" : ""}`}
+                  {`${
+                    i === 2
+                      ? "km"
+                      : i === 3
+                      ? "원"
+                      : i === 4
+                      ? "원"
+                      : i === 5
+                      ? "%"
+                      : ""
+                  }`}
                 </span>
               </div>
             );

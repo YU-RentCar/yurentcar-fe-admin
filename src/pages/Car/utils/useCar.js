@@ -1,135 +1,38 @@
 import { getCarList, deleteCar } from "api/carAxios";
-import { useState } from "react";
+import { useRecoilState } from "recoil";
+import { carInfoSelector } from "recoil/carAtom";
+import { useAlert } from "utils/useAlert";
 
 export const useCar = function () {
-  // 차량 더미 데이터
-  const [cars, setCars] = useState([
-    {
-      carId: 0,
-      carName: "그랜저 HG",
-      carNumber: "01가1111",
-      carState: "도난",
-    },
-    {
-      carId: 1,
-      carName: "그랜저 HG",
-      carNumber: "02가1111",
-      carState: "도난",
-    },
-    {
-      carId: 2,
-      carName: "그랜저 HG",
-      carNumber: "03가1111",
-      carState: "도난",
-    },
-    {
-      carId: 3,
-      carName: "그랜저 HG",
-      carNumber: "04가1111",
-      carState: "도난",
-    },
-    {
-      carId: 4,
-      carName: "그랜저 HG",
-      carNumber: "05가1111",
-      carState: "도난",
-    },
-    {
-      carId: 5,
-      carName: "아반떼",
-      carNumber: "06가1111",
-      carState: "사용가능",
-    },
-    {
-      carId: 6,
-      carName: "아반떼",
-      carNumber: "07가1111",
-      carState: "사용가능",
-    },
-    {
-      carId: 7,
-      carName: "아반떼",
-      carNumber: "08가1111",
-      carState: "사용가능",
-    },
-    {
-      carId: 8,
-      carName: "아반떼",
-      carNumber: "09가1111",
-      carState: "사용가능",
-    },
-    {
-      carId: 9,
-      carName: "아반떼",
-      carNumber: "01나1111",
-      carState: "사용가능",
-    },
-    {
-      carId: 10,
-      carName: "소나타",
-      carNumber: "02나1111",
-      carState: "수리/점검",
-    },
-    {
-      carId: 11,
-      carName: "소나타",
-      carNumber: "03나1111",
-      carState: "수리/점검",
-    },
-    {
-      carId: 12,
-      carName: "소나타",
-      carNumber: "04나1111",
-      carState: "수리/점검",
-    },
-    {
-      carId: 13,
-      carName: "소나타",
-      carNumber: "05나1111",
-      carState: "수리/점검",
-    },
-    {
-      carId: 14,
-      carName: "소나타",
-      carNumber: "06나1111",
-      carState: "수리/점검",
-    },
-  ]);
+  const [info, setInfo] = useRecoilState(carInfoSelector);
+  const alert = useAlert(); // alert 제어
 
   // controller
   const cu = {};
 
-  // getter
-  cu.getCars = function () {
-    return cars;
-  };
-  // setter
-  cu.setCars = function (newCars) {
-    setCars(newCars);
-  };
   // 차량 리스트 조회
-  cu.getCarList = function () {
-    /* getCarList()
+  cu.getCarList = function (adminUsername) {
+    getCarList(adminUsername)
       .then((response) => {
         console.log("차 / 차량조회 : ", response.data);
-        const tmp = this.fillSix([...response.data]); // 6개보다 적다면 빈걸로 채워주기
-        this.setCars(tmp);
+        const tmp = [...response.data];
+        tmp.sort((a, b) => a.carNumber - b.carNumber); // carNumber 기준으로 정렬
+        setInfo({
+          cars: [...tmp],
+          maxPage: { num: Math.ceil(tmp.length / 6) },
+        });
       })
       .catch((error) => {
         console.log("차량상태 / 차량조회에러 : ", error.response);
-      }); 
-    return cars */
-    const tmp = this.fillSix(cars);
-    this.setCars(tmp);
-    return cars;
+      });
   };
   // 특정 페이지의 6개 가져오기
   cu.getPageCars = function (page) {
-    const pageCars = cars.slice((page - 1) * 6, page * 6);
+    const pageCars = info.cars.slice((page - 1) * 6, page * 6);
     return pageCars;
   };
   // 비어있는 개수 채우기
-  cu.fillSix = function (beforeSix) {
+  cu.fillEmpty = function (beforeSix) {
     const len = beforeSix.length;
     const tmp = [...beforeSix];
     if (len < 6) {
@@ -138,35 +41,41 @@ export const useCar = function () {
           carName: "",
           carNumber: "",
           carState: "",
+          carId: -1,
         });
       }
     }
     return tmp;
   };
   // 차량 검색
-  cu.searchCars = function (carNumber) {
-    const tmp = [...this.getCarList()];
-    const res = tmp.filter((v) => v.carNumber === carNumber);
-    this.setCars(res);
-    return res;
-  };
-  // 차량 삭제
-  cu.deleteCar = function (target) {
-    /*deleteCar(target)
+  cu.searchCars = function (adminUsername, carNumber) {
+    getCarList(adminUsername)
       .then((response) => {
-        console.log("차 / 차량삭제 : ", response.data);
-        const tmp = this.getCarList();
-        this.setCars(tmp);
+        console.log("차 / 차량검색 : ", response.data);
+        let res;
+        if (carNumber.trim() === "") res = [...response.data];
+        else res = [...response.data].filter((v) => v.carNumber === carNumber);
+        if (res.length)
+          setInfo({
+            cars: [...res],
+            maxPage: { num: Math.ceil(res.length / 6) },
+          });
+        else alert.onAndOff("검색 결과 차량이 없습니다");
       })
       .catch((error) => {
-        console.log("차 / 차량삭제에러 : ", error.response);
+        console.log("차 / 차량검색에러 : ", error.response);
       });
-      return cars*/
-    const tmp = [...cars];
-    const idx = tmp.findIndex((car) => car.carId === target.carId);
-    tmp.splice(idx, 1);
-    this.setCars(tmp);
-    return tmp;
+  };
+  // 차량 삭제
+  cu.deleteCar = function (adminUsername, carNumber) {
+    return new Promise((resolve) => {
+      deleteCar(adminUsername, carNumber)
+        .then((response) => {
+          console.log("차 / 차삭제 : ", response.data);
+          resolve();
+        })
+        .catch((error) => console.log("차 / 차삭제에러 : ", error.response));
+    });
   };
 
   return cu;
