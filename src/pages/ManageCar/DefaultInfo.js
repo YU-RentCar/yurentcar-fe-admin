@@ -79,6 +79,9 @@ const DefaultInfo = React.memo(() => {
                 setImgSrc(e.target.result);
               };
               reader.readAsDataURL(e.target.files[0]);
+              console.log("hello   ", e.target.files[0]);
+              const tmp = { picture: e.target.files[0] };
+              setNewDefault(tmp); // 변경 정보 저장
             }}
           />
           <div className="w-[300px] h-[200px] rounded-2xl border-2 border-dashed border-slate-300">

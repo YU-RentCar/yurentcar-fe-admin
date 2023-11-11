@@ -101,7 +101,11 @@ const Car = () => {
                       className="w-[130px] h-2/3 rounded-full bg-slate-200 text-lg font-medium text-slate-500 hover:shadow-figma"
                       onClick={() => {
                         nav("/managecar", {
-                          state: { type: "modify", carNumber: v.carNumber },
+                          state: {
+                            type: "modify",
+                            carNumber: v.carNumber,
+                            carId: v.carId,
+                          },
                         });
                       }}
                     >
