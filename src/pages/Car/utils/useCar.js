@@ -52,7 +52,9 @@ export const useCar = function () {
     getCarList(adminUsername)
       .then((response) => {
         console.log("차 / 차량검색 : ", response.data);
-        const res = [...response.data].filter((v) => v.carNumber === carNumber);
+        let res;
+        if (carNumber.trim() === "") res = [...response.data];
+        else res = [...response.data].filter((v) => v.carNumber === carNumber);
         if (res.length)
           setInfo({
             cars: [...res],
