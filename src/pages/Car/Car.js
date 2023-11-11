@@ -114,7 +114,7 @@ const Car = () => {
                     <button
                       className="w-[70px] h-2/3 rounded-full border-2 border-red-300 text-lg font-medium text-red-300 hover:shadow-figma"
                       onClick={() => {
-                        setNewInfo({ deleteTarget: v.carId });
+                        setNewInfo({ deleteTarget: v.carNumber });
                         popUp.toggle();
                       }}
                     >

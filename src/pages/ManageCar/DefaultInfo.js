@@ -108,12 +108,10 @@ const DefaultInfo = React.memo(() => {
                 </span>
                 <input
                   type={
-                    v.includes([
-                      "beforePrice",
-                      "afterPrice",
-                      "totalDistance",
-                      "maxPassenger",
-                    ])
+                    v === "afterPrice" ||
+                    v === "beforePrice" ||
+                    v === "totalDistance" ||
+                    v === "discountRate"
                       ? "number"
                       : "text"
                   }
@@ -121,16 +119,12 @@ const DefaultInfo = React.memo(() => {
                   value={newDefault[v]}
                   onChange={(e) => {
                     const tmp = {};
-                    if (
-                      v.includes([
-                        "beforePrice",
-                        "afterPrice",
-                        "totalDistance",
-                        "maxPassenger",
-                      ])
-                    )
-                      tmp[v] = Number(e.target.value);
-                    else tmp[v] = e.target.value;
+                    v === "afterPrice" ||
+                    v === "beforePrice" ||
+                    v === "totalDistance" ||
+                    v === "discountRate"
+                      ? (tmp[v] = Number(e.target.value))
+                      : (tmp[v] = e.target.value);
                     setNewDefault(tmp); // 변경 정보 저장
                   }}
                 />

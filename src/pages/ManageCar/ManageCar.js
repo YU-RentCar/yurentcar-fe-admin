@@ -61,7 +61,7 @@ const ManageCar = () => {
                 let formData = new FormData();
                 formData.append("file", newInfo.picture);
                 formData.append("carRequest", blob);
-                if (type === "add") {
+                if (location.state.type === "add") {
                   axios
                     .post(
                       "/branches/cars?adminUsername=first_admin",
@@ -159,8 +159,6 @@ const ManageCar = () => {
     } else if (newInfo.releaseDate === "") {
       alert.onAndOff("출시년도를 선택해주세요");
       return false;
-    } else if (newInfo.picture === undefined) {
-      alert.onAndOff("사진을 등록해주세요");
     } else return true;
   }
 };

@@ -67,9 +67,9 @@ export const useCar = function () {
       });
   };
   // 차량 삭제
-  cu.deleteCar = function (adminUsername, carId) {
+  cu.deleteCar = function (adminUsername, carNumber) {
     return new Promise((resolve) => {
-      deleteCar(adminUsername, carId)
+      deleteCar(adminUsername, carNumber)
         .then((response) => {
           console.log("차 / 차삭제 : ", response.data);
           resolve();

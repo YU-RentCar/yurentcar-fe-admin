@@ -10,13 +10,13 @@ let getCarList = (adminUsername) => {
 };
 
 /* 지점 차량 삭제 */
-let deleteCar = (adminUsername, carId) => {
+let deleteCar = (adminUsername, carNumber) => {
   return api({
     url: "/branches/cars",
     method: "delete",
     params: {
       adminUsername: adminUsername,
-      carId: carId,
+      carNumber: carNumber,
     },
   });
 };

@@ -19,7 +19,7 @@ const Delete = ({ cu }) => {
             className="w-[350px] h-16 bg-sky-200 rounded-2xl text-red-500 font-bold text-2xl"
             onClick={async () => {
               await cu.deleteCar("first_admin", delTarget.deleteTarget);
-              cu.getCarList("first_admin");
+              await cu.getCarList("first_admin");
               popUpInfo.toggle();
             }}
           >
