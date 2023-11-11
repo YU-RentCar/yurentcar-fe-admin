@@ -1,7 +1,7 @@
 name: Build and Deploy
 on:
   push:
-    branches: Feat/#27-car-axios
+    branches: develop
 jobs:
   deploy:
     runs-on: ubuntu-latest
