@@ -1,22 +1,22 @@
 import api from "api/interceptors";
 
 /* 지점 차량 조회 */
-let getCarList = () => {
+let getCarList = (adminUsername) => {
   return api({
-    url: "",
+    url: "/branches/cars/management",
     method: "get",
-    params: { key: "value" },
+    params: { adminUsername: adminUsername },
   });
 };
 
 /* 지점 차량 삭제 */
-let deleteCar = (target) => {
+let deleteCar = (adminUsername, carId) => {
   return api({
     url: "/branches/cars",
     method: "delete",
     params: {
-      adminUsername: target.username,
-      carId: target.carId,
+      adminUsername: adminUsername,
+      carId: carId,
     },
   });
 };
