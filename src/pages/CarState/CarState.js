@@ -1,5 +1,9 @@
+import Alert from "popUp/Alert";
 import { useEffect, useState } from "react";
 import { useCarState } from "./utils/useCarState";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { infoSelector } from "recoil/carStateAtom";
+import { alertAtom } from "recoil/alertAtom";
 import {
   Menu,
   MenuHandler,
@@ -15,26 +19,19 @@ import {
 
 const CarState = () => {
   const csu = useCarState(); // CarState 의 Utils
-  const [page, setPage] = useState(1); // 현재 페이지
-  const [maxPage, setMaxPage] = useState(1); // 최대 페이지
-  const [filterMenu, setFilterMenu] = useState([
-    "전체",
-    "사용가능",
-    "수리/점검",
-    "도난",
-  ]); // 검색 필터
-  const [stateMenu, setStateMenu] = useState(["사용가능", "수리/점검", "도난"]); // 차량 상태
+  const [newInfo, setNewInfo] = useRecoilState(infoSelector); // 필요 정보
   const [six, setSix] = useState([]); // 실제 화면 상에 보여질 6개
   const [searchTarget, setSearchTarget] = useState(""); // 검색할 차량 번호
+
   useEffect(() => {
-    const tmp = [...csu.getCarList()]; // 서버로부터 차량 리스트 조회
-    setMaxPage(Math.ceil(tmp.length / 6));
+    // 서버로부터 차량 리스트 불러오기
+    csu.getCarList("first_admin");
   }, []);
   // maxPage 가 바뀌면 -> 새로운 데이터셋
   useEffect(() => {
-    setSix(csu.fillSix(csu.getPageCars(1)));
-    setPage(1);
-  }, [maxPage]);
+    setSix(csu.fillEmpty(csu.getPageItems(1)));
+    setNewInfo({ page: 1 });
+  }, [newInfo.maxPage]);
   return (
     <>
       <div className="flex flex-col items-center justify-center w-full h-screen">
@@ -48,9 +45,9 @@ const CarState = () => {
               {/* 상태 저장 버튼 */}
               <button
                 className="h-full ml-6 text-xl font-semibold text-white bg-blue-400 rounded-full w-44 hover:shadow-figma"
-                onClick={() => {
-                  const tmp = csu.saveChange();
-                  console.log(tmp);
+                onClick={async () => {
+                  await csu.saveChange("first_admin");
+                  csu.getCarList("first_admin");
                 }}
               >
                 차량 상태 저장
@@ -61,26 +58,26 @@ const CarState = () => {
               <input
                 className="h-full px-8 text-xl font-semibold border-2 border-blue-500 rounded-full w-[280px]"
                 placeholder="차량 번호를 입력해주세요"
-                onChange={(e) => setSearchTarget(e.target.value.trim())}
+                onChange={(e) => setSearchTarget(e.target.value)}
               />
-              {/* 검색 */}
+              {/* 검색할 필터 선택 */}
               <Menu>
                 <MenuHandler>
                   <button className="w-[160px] h-full bg-blue-400 text-white flex justify-around items-center rounded-full px-2 ml-4 text-xl">
                     <span id="sort" className="font-bold">
-                      {filterMenu[0]}
+                      {newInfo.filterMenu[0]}
                     </span>
                     <MdArrowBackIosNew className="-rotate-90" />
                   </button>
                 </MenuHandler>
                 <MenuList>
-                  {filterMenu.map((v, i) => {
+                  {newInfo.filterMenu.map((v, i) => {
                     return (
                       <MenuItem
                         className="flex items-center justify-center text-lg font-bold"
                         onClick={() => {
-                          const target = document.getElementById("sort");
-                          csu.changeMenu("title", target, filterMenu[i], 0);
+                          document.getElementById("sort").innerText =
+                            newInfo.filterMenu[i];
                         }}
                         key={i}
                       >
@@ -94,11 +91,10 @@ const CarState = () => {
               <button
                 className="ml-4 text-5xl text-blue-500"
                 onClick={() => {
-                  const tmp = csu.searchCars(
-                    searchTarget,
+                  csu.searchItems(
+                    searchTarget.trim(),
                     document.getElementById("sort").innerText
                   );
-                  setMaxPage(Math.ceil(tmp.length / 6)); // 검색 결과 -> 새로운 데이터 셋
                 }}
               >
                 <MdSearch />
@@ -151,20 +147,21 @@ const CarState = () => {
                         </button>
                       </MenuHandler>
                       <MenuList>
-                        {stateMenu.map((v, idx) => {
+                        {newInfo.stateMenu.map((v, idx) => {
                           return (
                             <MenuItem
                               className="flex items-center justify-center text-lg font-bold"
                               onClick={() => {
-                                const target = document.getElementById(
-                                  `sort${i}`
-                                );
-                                csu.changeMenu(
-                                  "list",
-                                  target,
-                                  stateMenu[idx],
-                                  (page - 1) * 6 + i
-                                );
+                                const tmp = [...newInfo.cars];
+                                const index = (newInfo.page - 1) * 6 + i;
+                                const after = {
+                                  ...tmp[index],
+                                  afterChange: v, // 변화된 상태
+                                };
+                                tmp.splice(index, 1, after); // 바뀐 객체로 변경
+                                setNewInfo({ cars: [...tmp] });
+                                document.getElementById(`sort${i}`).innerText =
+                                  v;
                               }}
                               key={idx}
                             >
@@ -185,25 +182,26 @@ const CarState = () => {
           <MdArrowBack
             className="text-5xl"
             onClick={() => {
-              if (page === 1) return;
-              setSix(csu.fillSix(csu.getPageCars(page - 1)));
-              setPage(page - 1);
+              if (newInfo.page === 1) return;
+              setSix(csu.fillEmpty(csu.getPageItems(newInfo.page - 1)));
+              setNewInfo({ page: newInfo.page - 1 });
             }}
           />
           <div className="text-lg">
-            Page <span className="text-2xl">{page}</span> of{" "}
-            <span className="text-2xl">{maxPage}</span>
+            Page <span className="text-2xl">{newInfo.page}</span> of{" "}
+            <span className="text-2xl">{newInfo.maxPage.num}</span>
           </div>
           <MdArrowForward
             className="text-5xl"
             onClick={() => {
-              if (page === maxPage) return;
-              setSix(csu.fillSix(csu.getPageCars(page + 1)));
-              setPage(page + 1);
+              if (newInfo.page === newInfo.maxPage.num) return;
+              setSix(csu.fillEmpty(csu.getPageItems(newInfo.page + 1)));
+              setNewInfo({ page: newInfo.page + 1 });
             }}
           />
         </div>
       </div>
+      {useRecoilValue(alertAtom).state && <Alert />}
     </>
   );
 };

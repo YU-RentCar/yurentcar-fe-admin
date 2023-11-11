@@ -1,181 +1,110 @@
 import { getCarList, saveChange } from "api/carStateAxios";
-import { useState } from "react";
+import { useRecoilState } from "recoil";
+import { infoSelector } from "recoil/carStateAtom";
+import { useAlert } from "utils/useAlert";
 
 export const useCarState = function () {
-  // 차량 더미 데이터
-  const [cars, setCars] = useState([
-    {
-      carName: "그랜저 HG",
-      carNumber: "12삼4567",
-      carState: "도난",
-    },
-    {
-      carName: "그랜저 HG",
-      carNumber: "12삼4567",
-      carState: "도난",
-    },
-    {
-      carName: "그랜저 HG",
-      carNumber: "12삼4567",
-      carState: "도난",
-    },
-    {
-      carName: "그랜저 HG",
-      carNumber: "12삼4567",
-      carState: "도난",
-    },
-    {
-      carName: "그랜저 HG",
-      carNumber: "12삼4567",
-      carState: "도난",
-    },
-    {
-      carName: "아반떼",
-      carNumber: "89십1112",
-      carState: "사용가능",
-    },
-    {
-      carName: "아반떼",
-      carNumber: "89십1112",
-      carState: "사용가능",
-    },
-    {
-      carName: "아반떼",
-      carNumber: "89십1112",
-      carState: "사용가능",
-    },
-    {
-      carName: "아반떼",
-      carNumber: "89십1112",
-      carState: "사용가능",
-    },
-    {
-      carName: "아반떼",
-      carNumber: "89십1112",
-      carState: "사용가능",
-    },
-    {
-      carName: "소나타",
-      carNumber: "13십4151",
-      carState: "수리/점검",
-    },
-    {
-      carName: "소나타",
-      carNumber: "13십4151",
-      carState: "수리/점검",
-    },
-    {
-      carName: "소나타",
-      carNumber: "13십4151",
-      carState: "수리/점검",
-    },
-    {
-      carName: "소나타",
-      carNumber: "13십4151",
-      carState: "수리/점검",
-    },
-    {
-      carName: "소나타",
-      carNumber: "13십4151",
-      carState: "수리/점검",
-    },
-  ]);
+  const [info, setInfo] = useRecoilState(infoSelector); // 차량 상태 정보
+  const alert = useAlert(); // Alert 제어
 
   // controller
-  const cs = {};
+  const csu = {};
 
-  // getter
-  cs.getCars = function () {
-    return cars;
-  };
-  // setter
-  cs.setCars = function (newCars) {
-    setCars(newCars);
-  };
-  // 차량 리스트 조회
-  cs.getCarList = function () {
-    /* getCarList()
+  // 서버로부터 리스트 가져오기
+  csu.getCarList = function (adminUsername) {
+    getCarList(adminUsername)
       .then((response) => {
         console.log("차량상태 / 차량조회 : ", response.data);
-        const tmp = this.fillSix([...response.data]); // 6개보다 적다면 빈걸로 채워주기
-        tmp.forEach((v) => (v.afterChange = v.carState)); // 모든 객체들에 afterChange 항목 추가
-        this.setCars(tmp);
-        setMaxPage(Math.ceil(tmp.length / 6)); // 최대 페이지 계산
-        setSix(this.getPageCars(1)); // 1페이지 6개만 잘라서 저장
+        const tmp = [...response.data];
+        tmp.sort((a, b) => a.carId - b.carId); // carId 대로 정렬
+        tmp.forEach((v) => (v.afterChange = v.carState)); // 변경 후의 상태 추가
+        setInfo({
+          cars: [...tmp],
+          maxPage: { num: Math.ceil(tmp.length / 6) },
+        }); // 가져온 리스트와 최대 페이지 계산
       })
-      .catch((error) => {
-        console.log("차량상태 / 차량조회에러 : ", error.response);
-      }); 
-    return cars*/
-    const tmp = this.fillSix(cars);
-    tmp.forEach((v) => (v.afterChange = v.carState));
-    this.setCars(tmp);
-    return cars;
+      .catch((error) =>
+        console.log("차량상태 / 차량조회에러 : ", error.response)
+      );
   };
-  // 선택 메뉴로 변경 함수
-  cs.changeMenu = function (type, target, newMenu, index) {
-    if (type === "title") {
-      target.innerText = newMenu;
-    } else {
-      const tmp = [...cars];
-      const after = {
-        ...tmp[index],
-        afterChange: newMenu, // 변화된 상태
-      };
-      tmp.splice(index, 1, after); // 바뀐 객체로 변경
-      setCars(tmp);
-      target.innerText = newMenu;
-    }
-  };
-  // 특정 페이지의 6개 가져오기
-  cs.getPageCars = function (page) {
-    const pageCars = cars.slice((page - 1) * 6, page * 6);
+  // 특정 페이지의 아이템들 가져오기
+  csu.getPageItems = function (page) {
+    const pageCars = info.cars.slice((page - 1) * 6, page * 6);
     return pageCars;
   };
   // 비어있는 개수 채우기
-  cs.fillSix = function (beforeSix) {
-    const len = beforeSix.length;
-    const tmp = [...beforeSix];
+  csu.fillEmpty = function (before) {
+    const len = before.length;
+    const tmp = [...before];
     if (len < 6) {
       for (let i = 0; i < 6 - len; i++) {
         tmp.push({
           carName: "",
           carNumber: "",
           carState: "",
+          carId: -1,
           afterChange: "",
         });
       }
     }
     return tmp;
   };
-  // 차량 상태 저장
-  cs.saveChange = function () {
-    const newCars = [];
-    cars.forEach((v) => {
-      const tmpObj = { ...v, carState: v.afterChange }; // afterChange 로 carState 변경
-      delete tmpObj.afterChange; // 서버에는 afterChange 사용 x
-      newCars.push(tmpObj);
-    });
-    return newCars;
-    /*saveChange(tmpCars)
-      .then((response) => {
-        console.log("차량상태 / 상태저장 : ", response.data);
-        window.location.reload();
-      })
-      .catch((error) =>
-        console.log("차량상태 / 상태저장에러 : ", error.response)
-      );*/
-  };
   // 차량 검색
-  cs.searchCars = function (carNumber, menu) {
-    const tmp = [...this.getCarList()];
-    let res;
-    // 필터링 or 검색
-    if (carNumber === "") res = tmp.filter((v) => v.carState === menu);
-    else res = tmp.filter((v) => v.carNumber === carNumber);
-    this.setCars(res);
-    return res;
+  csu.searchItems = function (carNumber, menu) {
+    getCarList("first_admin")
+      .then((response) => {
+        // 필터 검색
+        if (carNumber === "") {
+          let tmp;
+          if (menu === "전체") tmp = [...response.data]; // 전체
+          else tmp = [...response.data].filter((v) => v.carState === menu); // 특정 상태 필터
+          // 검색 결과 확인
+          if (tmp.length === 0) alert.onAndOff("검색 결과 차량이 없습니다");
+          else {
+            // 검색 결과 반영
+            tmp.forEach((v) => (v.afterChange = v.carState));
+            setInfo({
+              cars: [...tmp],
+              maxPage: { num: Math.ceil(tmp.length / 6) },
+            });
+          }
+        }
+        // 차량 번호 검색
+        else {
+          const tmp = [...response.data].filter(
+            (v) => v.carNumber === carNumber
+          ); // 특정 차량 검색
+          // 검색 결과 확인
+          if (tmp.length === 0) alert.onAndOff("검색 결과 차량이 없습니다");
+          else {
+            // 검색 결과 반영
+            tmp.forEach((v) => (v.afterChange = v.carState));
+            setInfo({
+              cars: [...tmp],
+              maxPage: { num: Math.ceil(tmp.length / 6) },
+            });
+          }
+        }
+      })
+      .catch((error) => {
+        console.log("차량상태 / 차량검색에러 : ", error.response);
+      });
+  };
+  // 변경된 상태값 서버로 전송
+  csu.saveChange = function (adminUsername) {
+    return new Promise((resolve) => {
+      info.cars.forEach((v, i) => {
+        const tmp = { carId: v.carId, carState: v.afterChange };
+        // 서버로 전송
+        saveChange(adminUsername, { ...tmp })
+          .then((response) => {
+            console.log("차량상태 / 상태변경 : ", response.data);
+            if (i === info.cars.length - 1) resolve();
+          })
+          .catch((error) => console.log(error.response));
+      });
+    });
   };
 
-  return cs;
+  return csu;
 };

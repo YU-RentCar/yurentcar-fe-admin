@@ -1,20 +1,21 @@
 import api from "./interceptors";
 
 /* 지점 차량 조회 */
-let getCarList = () => {
+let getCarList = (adminUsername) => {
   return api({
-    url: "",
+    url: "/branches/cars/management",
     method: "get",
-    params: { key: "value" },
+    params: { adminUsername: adminUsername },
   });
 };
 
 /* 차량 상태 저장 */
-let saveChange = (newCars) => {
+let saveChange = (adminUsername, newState) => {
   return api({
-    url: "",
-    method: "post/patch",
-    data: { key: "value" },
+    url: "/branches/cars/states",
+    method: "post",
+    params: { adminUsername: adminUsername },
+    data: { carId: newState.carId, carState: newState.carState },
   });
 };
 
