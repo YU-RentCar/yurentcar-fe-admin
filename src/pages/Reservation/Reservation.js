@@ -91,7 +91,9 @@ const Reservation = () => {
       </div>
       {activeStep === 0 ? <ResvList handleNext={handleNext}></ResvList> : null}
       {activeStep === 1 ? <DateTime handleNext={handleNext}></DateTime> : null}
-      {activeStep === 2 ? <CarList></CarList> : null}
+      {activeStep === 2 ? (
+        <CarList setActiveStep={setActiveStep}></CarList>
+      ) : null}
     </div>
   );
 };
