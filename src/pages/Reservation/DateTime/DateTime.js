@@ -42,16 +42,8 @@ const DateTime = ({ handleNext }) => {
   const alertState = useRecoilValue(alertAtom);
 
   useEffect(() => {
-    console.log("체크 시작");
-
     console.log(rclPrevResv);
-
-    console.log(dayjs(startDate).format("YYYY-MM-DD"));
-    console.log(endDate);
-    console.log(startTime);
-    console.log(endTime);
-
-    console.log("체크 끝");
+    console.log(rclAltResv);
   }, [endDate, endTime, startDate, startTime]);
 
   return (
@@ -66,7 +58,7 @@ const DateTime = ({ handleNext }) => {
         </div>
         <div className="w-[130px] h-full flex flex-col justify-center items-center">
           <div>예약 번호</div>
-          <div>{rclPrevResv.resvID || ""}</div>
+          <div>{rclPrevResv.reservationId || ""}</div>
         </div>
         <div className="w-[130px] h-full flex flex-col justify-center items-center">
           <div>차량 번호</div>

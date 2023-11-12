@@ -13,7 +13,7 @@ const ResvList = ({ handleNext }) => {
     for (let i = 0; i < MAX_ROW - list.length; i++) {
       tempList.push({
         nickname: null,
-        resvID: null,
+        reservationId: null,
         carNumber: null,
         startDate: null,
         endDate: null,
@@ -170,7 +170,7 @@ const ResvList = ({ handleNext }) => {
                         });
 
                         setRclPrevResv({
-                          resvID: v.resvID,
+                          reservationId: v.reservationId,
                           nickname: v.nickname,
                           carNumber: v.carNumber,
                           startDate: dayjs(v.startDate).format("YYYY-MM-DD"),
