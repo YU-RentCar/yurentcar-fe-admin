@@ -1,15 +1,15 @@
 import { usePopUp } from "utils/usePopUp";
 import { MdOutlineClose } from "react-icons/md";
 import { useState } from "react";
-import { useRecoilValue } from "recoil";
-import { pointAtom } from "recoil/pointAtom";
+import { useRecoilState } from "recoil";
+import { pointInfoSelector } from "recoil/pointAtom";
 import { useAlert } from "utils/useAlert";
-import { addRecord } from "api/pointAxios";
+import { addRecord, getUserPoint } from "api/pointAxios";
 
 const Change = () => {
   const popUp = usePopUp("Point/Change"); // 팝업 제어
   const alert = useAlert(); // alert 제어
-  const user = useRecoilValue(pointAtom); // 유저 정보
+  const [user, setUser] = useRecoilState(pointInfoSelector); // 유저 정보
   const [change, setChange] = useState({
     // 입력 정보
     price: "",
@@ -87,6 +87,11 @@ const Change = () => {
                 addRecord("first_admin", { ...change })
                   .then((response) => {
                     console.log("포인트 / 추가 : ", response.data);
+                    getUserPoint("first_admin", user.nickname)
+                      .then((response) => {
+                        setUser({ point: Number(response.data) });
+                      })
+                      .catch((error) => console.log(error.response));
                     popUp.toggle();
                   })
                   .catch((error) =>
