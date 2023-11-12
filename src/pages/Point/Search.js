@@ -1,18 +1,32 @@
-import { useState } from "react";
+import Change from "popUp/Point/Change";
+import { useEffect, useState } from "react";
 import { MdSearch, MdInfoOutline } from "react-icons/md";
 import { Tooltip } from "@material-tailwind/react";
 import { usePopUp } from "utils/usePopUp";
 import { useRecoilState } from "recoil";
 import { userInfoSelector } from "recoil/pointAtom";
-import Change from "popUp/Point/Change";
+import { getUserPoint } from "api/pointAxios";
+import { useAlert } from "utils/useAlert";
 
 const Search = ({ setType }) => {
+  const alert = useAlert(); // alert 제어
   const popUp = usePopUp("Point/Change"); // Change 팝업 제어
-  const [isSearched, setIsSearched] = useState(true); // 검색 결과
+  const [isSearched, setIsSearched] = useState(false); // 검색 결과
   const [user, setUser] = useRecoilState(userInfoSelector); // 유저 정보
   const [searchTarget, setSearchTarget] = useState(""); // 검색할 닉네임
-  // 유저 검색
-  const searchUser = (nickname) => nickname;
+  useEffect(() => {
+    if (user.nickname !== "") {
+      getUserPoint("first_admin", user.nickname)
+        .then((response) => {
+          console.log("포인트 / 포인트 : ", response.data);
+          setIsSearched(true);
+        })
+        .catch((error) => {
+          console.log("포인트 / 포인트에러 : ", error.response);
+          alert.onAndOff("검색에 실패했습니다");
+        });
+    }
+  }, []);
   return (
     <>
       <div className="flex items-center w-full h-screen">
@@ -27,14 +41,32 @@ const Search = ({ setType }) => {
               <input
                 className="h-full text-xl font-semibold border-2 border-blue-500 rounded-full w-[360px] px-8"
                 placeholder="닉네임을 입력해주세요"
-                onChange={(e) => setSearchTarget(e.target.value.trim())}
+                onChange={(e) => setSearchTarget(e.target.value)}
               />
               {/* 검색 버튼 */}
               <button
                 className="ml-2 text-4xl text-blue-500"
                 onClick={() => {
-                  const tmp = { ...user, nickname: searchTarget };
-                  setUser(tmp);
+                  if (searchTarget.trim() === "")
+                    alert.onAndOff("닉네임을 입력해주세요");
+                  else {
+                    getUserPoint("first_admin", searchTarget)
+                      .then((response) => {
+                        console.log("포인트 / 포인트 : ", response.data);
+                        const tmp = {
+                          ...user,
+                          nickname: searchTarget,
+                          point: Number(response.data),
+                        };
+                        setUser(tmp);
+                        setIsSearched(true);
+                      })
+                      .catch((error) => {
+                        console.log("포인트 / 포인트에러 : ", error.response);
+                        setSearchTarget("");
+                        alert.onAndOff("검색에 실패했습니다");
+                      });
+                  }
                 }}
               >
                 <MdSearch />
