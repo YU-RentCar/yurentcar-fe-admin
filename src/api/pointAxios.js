@@ -26,3 +26,15 @@ export const addRecord = (adminUsername, change) => {
     },
   });
 };
+
+/* 특정 유저의 포인트 내역 조회 */
+export const getPointRecords = (adminUsername, nickname) => {
+  return api({
+    url: "/points",
+    method: "get",
+    params: {
+      adminUsername: adminUsername,
+      nickname: nickname,
+    },
+  });
+};

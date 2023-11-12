@@ -12,6 +12,8 @@ export const pointAtom = atom({
         createdTime: "2023-01-01T09:00:00",
       },
     ],
+    maxPage: { num: 0 },
+    page: 0,
   },
 });
 
@@ -47,5 +49,17 @@ export const changeRecordsSelector = selector({
       records: [...newRecords],
     };
     set(pointAtom, tmp);
+  },
+});
+
+// 포인트 내역 조회
+export const pointInfoSelector = selector({
+  key: "pointInfoSelector",
+  get: ({ get }) => get(pointAtom),
+  set: ({ set, get }, newInfo) => {
+    const before = { ...get(pointAtom) };
+    const tmp = Object.keys(newInfo);
+    tmp.forEach((v) => (before[v] = newInfo[v]));
+    set(pointAtom, before);
   },
 });
