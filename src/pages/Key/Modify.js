@@ -20,7 +20,7 @@ const Modify = ({ idx, car, ku, setMIdx }) => {
         kioskId: -1,
         rfid: "",
         slotNumber: -1,
-        state: "사용중",
+        keyState: "사용중",
       });
     }
   }, []);
@@ -98,7 +98,6 @@ const Modify = ({ idx, car, ku, setMIdx }) => {
                       ...newKey,
                       keyState: newInfo.stateMenu[i],
                     };
-                    console.log("plz : ", tmp);
                     setNewKey(tmp);
                   }}
                   key={i}
