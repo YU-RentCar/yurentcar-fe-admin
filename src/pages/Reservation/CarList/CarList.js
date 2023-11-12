@@ -1,18 +1,46 @@
 import React from "react";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { MdSearch, MdArrowBack, MdArrowForward } from "react-icons/md";
 import { useEffect, useState, useRef } from "react";
-import useCarList from "./utils/useCarList";
 import { altResvAtom, prevResvAtom } from "recoil/reservationAtom";
 import dayjs from "dayjs";
-import { patchReservation } from "api/changeResvAxios";
+import { getChangeableCarList, patchReservation } from "api/changeResvAxios";
+import { adminAtom } from "recoil/adminAtom";
 
 const CarList = () => {
-  // 페이지 조작을 위한 커스텀 훅
-  const ctrl = useCarList(4);
+  function paddingList(list, MAX_ROW) {
+    const tempList = [...list];
+
+    for (let i = 0; i < MAX_ROW - list.length; i++) {
+      tempList.push({
+        carName: null,
+        carNumber: null,
+      });
+    }
+
+    return tempList;
+  }
+
+  // 한 페이지의 최대 row
+  const MAX_ROW = 4;
+
+  // 예약 정보
+  const [cars, setCars] = useState([]);
+
+  // 실제로 리스트에 뿌려지는 데이터
+  const [listData, setListData] = useState([]);
+
+  // 현재 페이지 숫자
+  const [pageNum, setPageNum] = useState(1);
+
+  // 최대 페이지 숫자
+  const [maxPageNum, setMaxPageNum] = useState(1);
 
   const [rclAltResv, setRclAltResv] = useRecoilState(altResvAtom);
+
   const [rclPrevResv, setRclPrevResv] = useRecoilState(prevResvAtom);
+
+  const adminInfo = useRecoilValue(adminAtom);
 
   // 검색 input
   const [findInput, setFindInput] = useState("");
@@ -21,27 +49,47 @@ const CarList = () => {
   // 검색중을 확인하는 boolean
   const [isFinding, setIsFinding] = useState(false);
 
-  // 현재 페이지의 내용
-  const [curPage, setCurPage] = useState([]);
-
+  // 팝업 state
   const [isPopUpShow, setIsPopUpShow] = useState(false);
 
+  // 초기 useEffect
   useEffect(() => {
-    if (isFinding === true) {
-      setCurPage(ctrl.findByCarName(findTarget));
-    } else {
-      setCurPage(ctrl.getPage());
-    }
-  }, [ctrl.getCurPage(), ctrl.getMaxPage()]);
+    const startDate = `${rclAltResv.startDate}T${rclAltResv.startTime}:00`;
+    const endDate = `${rclAltResv.endDate}T${rclAltResv.endTime}:00`;
 
-  useEffect(() => {
-    console.log("확인");
-    console.log(rclAltResv);
-  }, [isPopUpShow]);
+    console.log(startDate, endDate);
+    console.log(rclPrevResv.reservationId);
+
+    const dateInfo = {
+      startDate: startDate,
+      endDate: endDate,
+    };
+
+    getChangeableCarList(
+      adminInfo.adminUsername,
+      rclPrevResv.reservationId,
+      dateInfo
+    )
+      .then((response) => {
+        console.log(response.data);
+        setCars(response.data);
+
+        const temp = response.data.slice(0, MAX_ROW);
+
+        setListData(paddingList(temp, MAX_ROW));
+
+        setPageNum(1);
+        setMaxPageNum(Math.ceil(response.data.length / MAX_ROW));
+      })
+      .catch((error) => {
+        console.log(error);
+        console.log("예약 변경할 수 있는 차량들을 받아오지 못했다");
+      });
+  }, []);
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center w-full">
+      <div className="flex flex-col items-center justify-center w-full select-none">
         <div className="w-[1140px] mx-auto rounded-2xl bg-white shadow-xl flex flex-col justify-center items-center">
           <div className="relative flex items-center justify-center w-full h-[50px] px-8 mt-12">
             {/* 타이틀 */}
@@ -62,12 +110,27 @@ const CarList = () => {
                 className="ml-4 text-5xl text-blue-500"
                 onClick={() => {
                   if (findInput.trim() !== "") {
-                    setCurPage(ctrl.findByCarName(findInput));
-                    setFindTarget(findInput);
                     setIsFinding(true);
+                    setPageNum(1);
+
+                    setMaxPageNum(
+                      Math.ceil(
+                        cars.filter((v) => v.carName === findInput).length /
+                          MAX_ROW
+                      )
+                    );
+
+                    const findData = cars
+                      .filter((v) => v.carName === findInput)
+                      .slice(0, MAX_ROW);
+
+                    setListData(paddingList(findData, MAX_ROW));
                   } else {
-                    setCurPage(ctrl.getPage());
                     setIsFinding(false);
+                    setMaxPageNum(Math.ceil(cars.length / MAX_ROW));
+                    setListData(
+                      paddingList(cars.slice(0, 1 * MAX_ROW), MAX_ROW)
+                    );
                   }
                 }}
               >
@@ -87,7 +150,7 @@ const CarList = () => {
             <div className="w-[500px] h-full flex justify-center items-center"></div>
           </div>
           {/* 리스트 */}
-          {curPage.map((v, i) => {
+          {listData.map((v, i) => {
             return (
               <div
                 id={i}
@@ -132,17 +195,58 @@ const CarList = () => {
           <MdArrowBack
             className="text-5xl"
             onClick={() => {
-              ctrl.toPrevPage();
+              if (pageNum - 1 >= 1) {
+                if (isFinding === true) {
+                  setPageNum(pageNum - 1);
+
+                  const findData = cars
+                    .filter((v) => v.carName === findInput)
+                    .slice(
+                      (pageNum - 1 - 1) * MAX_ROW,
+                      (pageNum - 1) * MAX_ROW
+                    );
+
+                  setListData(paddingList(findData, MAX_ROW));
+                } else {
+                  setPageNum(pageNum - 1);
+
+                  const temp = cars.slice(
+                    (pageNum - 1 - 1) * MAX_ROW,
+                    (pageNum - 1) * MAX_ROW
+                  );
+
+                  setListData(paddingList(temp, MAX_ROW));
+                }
+              }
             }}
           />
           <div className="text-lg">
-            Page <span className="text-2xl">{ctrl.getCurPage()}</span> of{" "}
-            <span className="text-2xl">{ctrl.getMaxPage()}</span>
+            Page <span className="text-2xl">{pageNum}</span> of{" "}
+            <span className="text-2xl">{maxPageNum}</span>
           </div>
           <MdArrowForward
             className="text-5xl"
             onClick={() => {
-              ctrl.toNextPage();
+              if (pageNum + 1 <= maxPageNum) {
+                if (isFinding === true) {
+                  setPageNum(pageNum + 1);
+
+                  const findData = cars
+                    .filter((v) => v.carName === findInput)
+                    .slice(pageNum * MAX_ROW, (pageNum + 1) * MAX_ROW);
+
+                  setListData(paddingList(findData, MAX_ROW));
+                } else {
+                  setPageNum(pageNum + 1);
+
+                  const temp = cars.slice(
+                    pageNum * MAX_ROW,
+                    (pageNum + 1) * MAX_ROW
+                  );
+
+                  setListData(paddingList(temp, MAX_ROW));
+                }
+              }
             }}
           />
         </div>
