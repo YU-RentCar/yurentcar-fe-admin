@@ -57,16 +57,17 @@ bool
 */
 
 // 예약 변경 요청
-export const patchReservation = () => {
+export const patchReservation = (adminUsername, resvInfo) => {
   return api({
-    url: "/reservations/:reservationId",
+    url: `/reservations/${resvInfo.reservationId}`,
+    method: "patch",
     params: {
-      adminUsername: "",
+      adminUsername: adminUsername,
     },
     data: {
-      startDate: "",
-      endDate: "",
-      carNumber: "",
+      startDate: resvInfo.startDate,
+      endDate: resvInfo.endDate,
+      carNumber: resvInfo.carNumber,
     },
   });
 };

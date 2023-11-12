@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 import { getChangeableCarList, patchReservation } from "api/changeResvAxios";
 import { adminAtom } from "recoil/adminAtom";
 
-const CarList = () => {
+const CarList = ({ setActiveStep }) => {
   function paddingList(list, MAX_ROW) {
     const tempList = [...list];
 
@@ -296,15 +296,23 @@ const CarList = () => {
                 <div
                   className="flex items-center justify-center px-8 py-3 bg-blue-200 rounded-full hover:bg-blue-500"
                   onClick={() => {
-                    // patchReservation()
-                    //   .then((response) => {
-                    //     console.log("예약 변경 완료");
-                    //     setIsPopUpShow(false);
-                    //   })
-                    //   .catch((error) => {
-                    //     console.log("예약 변경 실패");
-                    //     setIsPopUpShow(false);
-                    //   });
+                    const resvInfo = {
+                      startDate: `${rclAltResv.startDate}T${rclAltResv.startTime}:00`,
+                      endDate: `${rclAltResv.endDate}T${rclAltResv.endTime}:00`,
+                      carNumber: rclAltResv.carNumber,
+                      reservationId: rclPrevResv.reservationId,
+                    };
+
+                    patchReservation(adminInfo.adminUsername, resvInfo)
+                      .then((response) => {
+                        console.log("예약 변경 완료");
+                        setActiveStep(0);
+                        setIsPopUpShow(false);
+                      })
+                      .catch((error) => {
+                        console.log("예약 변경 실패");
+                        setIsPopUpShow(false);
+                      });
                   }}
                 >
                   확인
