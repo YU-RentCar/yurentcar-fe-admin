@@ -1,4 +1,4 @@
-import { getNoticeList } from "api/noticeAxios";
+import { getNoticeList, deleteNotice } from "api/noticeAxios";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { adminAtom } from "recoil/adminAtom";
 import { noticeInfoSelector } from "recoil/noticeAtom";
@@ -69,12 +69,13 @@ export const useNotice = function () {
       .catch((error) => console.log("검색 / 조회에러 : ", error.response));
   };
   // 차량 삭제
-  nu.deleteNotice = function (target) {
-    const tmp = [...info.notices];
-    const idx = tmp.findIndex((notice) => notice.noticeId === target.noticeId);
-    tmp.splice(idx, 1);
-    this.setNotices(tmp);
-    return tmp;
+  nu.deleteNotice = function (noticeId) {
+    deleteNotice("first_admin", noticeId)
+      .then((response) => {
+        console.log("공지 / 삭제 : ", response.data);
+        this.getNoticeList(adminInfo.province, adminInfo.branchName);
+      })
+      .catch((error) => console.log("공지 / 삭제에러 : ", error.response));
   };
 
   return nu;

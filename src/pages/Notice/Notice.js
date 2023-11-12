@@ -105,7 +105,7 @@ const Notice = () => {
                         nav("/managenotice", {
                           state: {
                             type: "modify",
-                            noticeId: v,
+                            noticeId: v.noticeId,
                           },
                         });
                       }}
@@ -115,9 +115,7 @@ const Notice = () => {
                     <button
                       className="w-[70px] h-2/3 rounded-full border-2 border-red-300 text-lg font-medium text-red-300 hover:shadow-figma"
                       onClick={() => {
-                        setDelTarget({
-                          noticeId: v.noticeId,
-                        });
+                        setNewInfo({ deleteTarget: v.noticeId });
                         popUp.toggle();
                       }}
                     >
@@ -153,7 +151,7 @@ const Notice = () => {
           />
         </div>
       </div>
-      {popUp.isClicked ? <Delete delTarget={delTarget} /> : null}
+      {popUp.isClicked ? <Delete nu={nu} /> : null}
       {useRecoilValue(alertAtom).state && <Alert />}
     </>
   );
