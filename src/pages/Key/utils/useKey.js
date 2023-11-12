@@ -1,143 +1,127 @@
-import { useState } from "react";
+import { getKeyList, addKey, modifyKey, deleteKey } from "api/keyAxios";
+import { useRecoilState } from "recoil";
+import { keyInfoSelector } from "recoil/keyAtom";
+import { useAlert } from "utils/useAlert";
 
 export const useKey = function () {
-  // 차 키 더미 데이터
-  const [keys, setKeys] = useState([
-    {
-      carName: "그랜저 HG",
-      carNumber: "12삼4567",
-      rfid: "AA BB CC DD",
-      keyState: "도난",
-    },
-    {
-      carName: "그랜저 HG",
-      carNumber: "22삼4567",
-      rfid: "AA BB CC DD",
-      keyState: "도난",
-    },
-    {
-      carName: "그랜저 HG",
-      carNumber: "32삼4567",
-      rfid: "AA BB CC DD",
-      keyState: "도난",
-    },
-    {
-      carName: "그랜저 HG",
-      carNumber: "42삼4567",
-      rfid: "AA BB CC DD",
-      keyState: "도난",
-    },
-    {
-      carName: "그랜저 HG",
-      carNumber: "52삼4567",
-      rfid: "AA BB CC DD",
-      keyState: "도난",
-    },
-    {
-      carName: "아반떼",
-      carNumber: "62삼4567",
-      rfid: "AA BB CC DD",
-      keyState: "여분키",
-    },
-    {
-      carName: "아반떼",
-      carNumber: "72삼4567",
-      rfid: "AA BB CC DD",
-      keyState: "여분키",
-    },
-    {
-      carName: "아반떼",
-      carNumber: "82삼4567",
-      rfid: "AA BB CC DD",
-      keyState: "여분키",
-    },
-    {
-      carName: "아반떼",
-      carNumber: "92삼4567",
-      rfid: "AA BB CC DD",
-      keyState: "여분키",
-    },
-    {
-      carName: "아반떼",
-      carNumber: "102삼4567",
-      rfid: "AA BB CC DD",
-      keyState: "여분키",
-    },
-  ]);
+  const [info, setInfo] = useRecoilState(keyInfoSelector); // 차 키 정보
+  const alert = useAlert(); // alert 제어
 
   // controller
   const ku = {};
 
-  // getter
-  ku.getKeys = function () {
-    return keys;
-  };
-  // setter
-  ku.setKeys = function (newKeys) {
-    setKeys(newKeys);
-  };
   // 차량 리스트 조회
-  ku.getKeyList = function () {
-    const tmp = this.fillSix(keys);
-    tmp.forEach((v) => (v.afterChange = v.keyState));
-    this.setKeys(tmp);
-    return tmp;
+  ku.getKeyList = function (adminUsername) {
+    getKeyList(adminUsername)
+      .then((response) => {
+        console.log("키 / 키조회 : ", response.data);
+        let tmp = [];
+        [...response.data].forEach((v) => {
+          tmp.push({
+            ...v,
+            state: v.keyState,
+          });
+        });
+        tmp.sort((a, b) => a.slotNumber - b.slotNumber);
+        setInfo({
+          keys: [...tmp],
+          maxPage: { num: Math.ceil(tmp.length / 6) },
+        });
+      })
+      .catch((error) => console.log("키 / 키조회에러 : ", error.response));
   };
   // 특정 페이지의 6개 가져오기
   ku.getPageKeys = function (page) {
-    const pageKeys = keys.slice((page - 1) * 6, page * 6);
+    const pageKeys = info.keys.slice((page - 1) * 6, page * 6);
     return pageKeys;
   };
   // 비어있는 개수 채우기
-  ku.fillSix = function (beforeSix) {
+  ku.fillEmpty = function (beforeSix) {
     const len = beforeSix.length;
     const tmp = [...beforeSix];
     if (len < 6) {
       for (let i = 0; i < 6 - len; i++) {
         tmp.push({
-          carName: "",
           carNumber: "",
           rfid: "",
-          keyState: "",
+          state: "",
+          kioskId: -1,
+          slotNumber: -1,
+          keyId: -1,
         });
       }
     }
     return tmp;
   };
-  // 변경 정보 저장
-  ku.saveChange = function () {
-    const newKeys = [];
-    keys.forEach((v) => {
-      const tmpObj = { ...v, keyState: v.afterChange }; // afterChange 로 carState 변경
-      delete tmpObj.afterChange; // 서버에는 afterChange 사용 x
-      newKeys.push(tmpObj);
-    });
-    return newKeys;
-  };
-  // 특정 차 키 정보 변경
-  ku.changeInfo = function (page, idx, newKey) {
-    const tmp = [...keys];
-    tmp.splice((page - 1) * 6 + idx, 1, { ...newKey });
-    this.setKeys(tmp);
-    return tmp;
+  // 차 키 추가
+  ku.addKey = function (adminUsername, newKey) {
+    addKey(adminUsername, { ...newKey })
+      .then((response) => {
+        console.log("키 / 키추가 : ", response.data);
+        this.getKeyList(adminUsername);
+      })
+      .catch((error) => {
+        console.log("키 / 키추가에러 : ", error.response);
+        alert.onAndOff("키를 등록할 수 없습니다");
+      });
   };
   // 차 키 검색
-  ku.searchKeys = function (carNumber, menu) {
-    const tmp = [...this.getKeyList()];
-    let res;
-    // 필터링 or 검색
-    if (carNumber === "") res = tmp.filter((v) => v.keyState === menu);
-    else res = tmp.filter((v) => v.carNumber === carNumber);
-    this.setKeys(res);
-    return res;
+  ku.searchKey = function (adminUsername, carNumber, menu) {
+    getKeyList(adminUsername)
+      .then((response) => {
+        console.log("키 / 키검색 : ", response.data);
+        // 필터 검색
+        if (carNumber === "") {
+          let tmp;
+          if (menu === "전체") {
+            tmp = [...response.data];
+            tmp.sort((a, b) => a.carNumber - b.carNumber);
+          } else tmp = [...response.data].filter((v) => v.state === menu);
+          if (tmp.length)
+            setInfo({
+              keys: [...tmp],
+              maxPage: { num: Math.ceil(tmp.length / 6) },
+            });
+          else alert.onAndOff("검색 결과 키가 없습니다");
+        }
+        // 차량 번호 검색
+        else {
+          const tmp = [...response.data].filter(
+            (v) => v.carNumber === carNumber
+          ); // 특정 차량 검색
+          // 검색 결과 확인
+          if (tmp.length === 0) alert.onAndOff("검색 결과 차량이 없습니다");
+          else {
+            // 검색 결과 반영
+            setInfo({
+              keys: [...tmp],
+              maxPage: { num: Math.ceil(tmp.length / 6) },
+            });
+          }
+        }
+      })
+      .catch((error) => console.log("키 / 키검색에러 : ", error.response));
+  };
+  // 변경 정보 저장
+  ku.modifyKey = function (adminUsername, newKey) {
+    modifyKey(adminUsername, { ...newKey })
+      .then((response) => {
+        console.log("키 / 키변경 : ", response.data);
+        this.getKeyList(adminUsername);
+      })
+      .catch((error) => {
+        console.log("키 / 키변경에러 : ", error.response);
+        alert.onAndOff("키 정보를 변경할 수 없습니다");
+      });
   };
   // 차 키 삭제
-  ku.deleteKey = function (target) {
-    const tmp = [...keys];
-    const idx = tmp.findIndex((key) => key.carNumber === target.carNumber);
-    tmp.splice(idx, 1);
-    this.setKeys(tmp);
-    return tmp;
+  ku.deleteKey = function (adminUsername, keyId) {
+    deleteKey(adminUsername, keyId)
+      .then((response) => {
+        console.log("키 / 키삭제 : ", response.data);
+        this.getKeyList(adminUsername);
+      })
+      .catch((error) => console.log("키 / 키삭제에러 : ", error.response));
   };
 
   return ku;

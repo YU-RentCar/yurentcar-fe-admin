@@ -1,7 +1,9 @@
+import { useRecoilValue } from "recoil";
+import { keyAtom } from "recoil/keyAtom";
 import { usePopUp } from "utils/usePopUp";
-
-const Delete = ({ delTarget, ku, setMaxPage }) => {
+const Delete = ({ ku }) => {
   const popUp = usePopUp("Key/Delete"); // 팝업 제어
+  const info = useRecoilValue(keyAtom); // 삭제 정보
   return (
     <div className="fixed top-0 left-0 z-40 flex items-center justify-center w-screen h-screen bg-black bg-opacity-40">
       <div className="w-[600px] h-[300px] rounded-2xl bg-white flex flex-col justify-center items-center">
@@ -15,8 +17,7 @@ const Delete = ({ delTarget, ku, setMaxPage }) => {
           <button
             className="w-[350px] h-16 bg-sky-200 rounded-2xl text-red-500 font-bold text-2xl"
             onClick={() => {
-              const tmp = ku.deleteKey({ ...delTarget }); // 해당 차량 삭제
-              setMaxPage({ num: Math.ceil(tmp.length / 6) }); // 검색 결과 -> 새로운 데이터 셋
+              ku.deleteKey("first_admin", info.deleteTarget); // 해당 차량 삭제
               popUp.toggle();
             }}
           >
