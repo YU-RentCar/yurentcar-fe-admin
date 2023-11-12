@@ -1,29 +1,34 @@
+import Alert from "popUp/Alert";
+import Delete from "popUp/Notice/Delete";
+import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { useNotice } from "pages/Notice/utils/useNotice";
 import { MdSearch, MdArrowBack, MdArrowForward } from "react-icons/md";
 import { usePopUp } from "utils/usePopUp";
 import { useNavigate } from "react-router-dom";
-import Delete from "popUp/Notice/Delete";
-import dayjs from "dayjs";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { noticeInfoSelector } from "recoil/noticeAtom";
+import { alertAtom } from "recoil/alertAtom";
+import { useAlert } from "utils/useAlert";
 
 const Notice = () => {
   const nav = useNavigate(); // nav 제어
+  const alert = useAlert(); // alert 제어
   const popUp = usePopUp("Notice/Delete"); // Delete 팝업 제어
   const nu = useNotice(); // Notice 의 Utils
-  const [page, setPage] = useState(1); // 현재 페이지
-  const [maxPage, setMaxPage] = useState({ num: 1 }); // 최대 페이지
+  const [newInfo, setNewInfo] = useRecoilState(noticeInfoSelector); // 공지사항 관리 데이터 정보
   const [six, setSix] = useState([]); // 실제 화면 상에 보여질 6개
   const [searchTarget, setSearchTarget] = useState(""); // 검색할 공지사항 제목
   const [delTarget, setDelTarget] = useState({}); // 삭제할 공지사항
   useEffect(() => {
-    const tmp = [...nu.getNoticeList()]; // 서버로부터 차량 리스트 조회
-    setMaxPage({ num: Math.ceil(tmp.length / 6) });
+    // 서버로부터 공지사항 리스트 조회
+    nu.getNoticeList();
   }, []);
   // maxPage 가 바뀌면 -> 새로운 데이터셋
   useEffect(() => {
-    setSix(nu.fillSix(nu.getPageNotices(1)));
-    maxPage ? setPage(1) : setPage(0);
-  }, [maxPage]);
+    setSix(nu.fillEmpty(nu.getPageNotices(1)));
+    newInfo.maxPage.num ? setNewInfo({ page: 1 }) : setNewInfo({ page: 0 });
+  }, [newInfo.maxPage]);
   return (
     <>
       <div className="flex flex-col items-center justify-center w-full h-screen">
@@ -38,14 +43,15 @@ const Notice = () => {
               <input
                 className="h-full text-xl font-semibold border-2 border-blue-500 rounded-full w-[360px] px-8"
                 placeholder="제목을 입력해주세요"
-                onChange={(e) => setSearchTarget(e.target.value.trim())}
+                onChange={(e) => setSearchTarget(e.target.value)}
               />
               {/* 검색 버튼 */}
               <button
                 className="ml-2 text-4xl text-blue-500"
                 onClick={() => {
-                  const tmp = nu.searchNotices(searchTarget);
-                  setMaxPage({ num: Math.ceil(tmp.length / 6) }); // 검색 결과 -> 새로운 데이터 셋
+                  if (searchTarget === "")
+                    alert.onAndOff("검색할 제목을 입력해주세요");
+                  nu.searchNotices(searchTarget);
                 }}
               >
                 <MdSearch />
@@ -99,7 +105,7 @@ const Notice = () => {
                         nav("/managenotice", {
                           state: {
                             type: "modify",
-                            noticeId: v,
+                            noticeId: v.noticeId,
                           },
                         });
                       }}
@@ -109,9 +115,7 @@ const Notice = () => {
                     <button
                       className="w-[70px] h-2/3 rounded-full border-2 border-red-300 text-lg font-medium text-red-300 hover:shadow-figma"
                       onClick={() => {
-                        setDelTarget({
-                          noticeId: v.noticeId,
-                        });
+                        setNewInfo({ deleteTarget: v.noticeId });
                         popUp.toggle();
                       }}
                     >
@@ -128,28 +132,27 @@ const Notice = () => {
           <MdArrowBack
             className="text-5xl"
             onClick={() => {
-              if (page === 1) return;
-              setSix(nu.fillSix(nu.getPageNotices(page - 1)));
-              setPage(page - 1);
+              if (newInfo.page === 1) return;
+              setSix(nu.fillEmpty(nu.getPageNotices(newInfo.page - 1)));
+              setNewInfo({ page: newInfo.page - 1 });
             }}
           />
           <div className="text-lg">
-            Page <span className="text-2xl">{page}</span> of{" "}
-            <span className="text-2xl">{maxPage.num}</span>
+            Page <span className="text-2xl">{newInfo.page}</span> of{" "}
+            <span className="text-2xl">{newInfo.maxPage.num}</span>
           </div>
           <MdArrowForward
             className="text-5xl"
             onClick={() => {
-              if (page === maxPage) return;
-              setSix(nu.fillSix(nu.getPageNotices(page + 1)));
-              setPage(page + 1);
+              if (newInfo.page === newInfo.maxPage.num) return;
+              setSix(nu.fillEmpty(nu.getPageNotices(newInfo.page + 1)));
+              setNewInfo({ page: newInfo.page + 1 });
             }}
           />
         </div>
       </div>
-      {popUp.isClicked ? (
-        <Delete delTarget={delTarget} nu={nu} setMaxPage={setMaxPage} />
-      ) : null}
+      {popUp.isClicked ? <Delete nu={nu} /> : null}
+      {useRecoilValue(alertAtom).state && <Alert />}
     </>
   );
 };
