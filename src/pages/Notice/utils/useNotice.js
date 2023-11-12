@@ -2,9 +2,11 @@ import { getNoticeList } from "api/noticeAxios";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { adminAtom } from "recoil/adminAtom";
 import { noticeInfoSelector } from "recoil/noticeAtom";
+import { useAlert } from "utils/useAlert";
 
 export const useNotice = function () {
   const adminInfo = useRecoilValue(adminAtom); // 관리자 정보
+  const alert = useAlert(); // alert 제어
   const [info, setInfo] = useRecoilState(noticeInfoSelector); // 공지사항 관리 데이터 관리
 
   // controller
@@ -50,13 +52,21 @@ export const useNotice = function () {
   };
   // 공지사항 검색
   nu.searchNotices = function (title) {
-    const tmp = [...this.getNoticeList()];
-    const res = [];
-    tmp.forEach((v) => {
-      if (v.title.includes(title)) res.push(v);
-    });
-    this.setNotices(res);
-    return res;
+    getNoticeList(adminInfo.province, adminInfo.branchName)
+      .then((response) => {
+        console.log("검색 / 조회 : ", response.data);
+        const tmp = [];
+        [...response.data].forEach((v) => {
+          if (v.title.includes(title)) tmp.push(v);
+        });
+        if (tmp.length) {
+          setInfo({
+            notices: [...tmp],
+            maxPage: { num: Math.ceil(tmp.length / 6) },
+          });
+        } else alert.onAndOff("검색 결과가 없습니다");
+      })
+      .catch((error) => console.log("검색 / 조회에러 : ", error.response));
   };
   // 차량 삭제
   nu.deleteNotice = function (target) {

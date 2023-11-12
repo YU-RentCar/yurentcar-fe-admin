@@ -9,9 +9,11 @@ import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { noticeInfoSelector } from "recoil/noticeAtom";
 import { alertAtom } from "recoil/alertAtom";
+import { useAlert } from "utils/useAlert";
 
 const Notice = () => {
   const nav = useNavigate(); // nav 제어
+  const alert = useAlert(); // alert 제어
   const popUp = usePopUp("Notice/Delete"); // Delete 팝업 제어
   const nu = useNotice(); // Notice 의 Utils
   const [newInfo, setNewInfo] = useRecoilState(noticeInfoSelector); // 공지사항 관리 데이터 정보
@@ -47,8 +49,9 @@ const Notice = () => {
               <button
                 className="ml-2 text-4xl text-blue-500"
                 onClick={() => {
-                  // const tmp = nu.searchNotices(searchTarget);
-                  // setMaxPage({ num: Math.ceil(tmp.length / 6) }); // 검색 결과 -> 새로운 데이터 셋
+                  if (searchTarget === "")
+                    alert.onAndOff("검색할 제목을 입력해주세요");
+                  nu.searchNotices(searchTarget);
                 }}
               >
                 <MdSearch />
