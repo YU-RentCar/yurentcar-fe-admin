@@ -1,29 +1,11 @@
 import api from "./interceptors";
 
-/*
-/reservations/branch?isDone=false&adminUsername={관리자이메일}
-params
-  isDone: boolean(false)
-  adminUsername: String
-
-[
-	{
-		nickname : "닉네임" // 닉네임
-		reservationID : 12345 // 예약 번호 (이메일로 받는)
-		carNumber : "12삼4567" // 차량 번호
-    startDate : ""
-    endDate : ""
-	},
-	...
-]
-*/
-
 // 지점에 걸려있는 예약들을 불러오는 API
-export const getResvList = () => {
+export const getResvList = (adminUsername) => {
   return api({
     url: "/reservations/branch",
     method: "get",
-    params: { isDone: false, adminUsername: "" },
+    params: { isDone: false, adminUsername: adminUsername },
   });
 };
 
@@ -47,15 +29,15 @@ params
 */
 
 // 예약 변경되는 차량 리스트 요청
-export const getChangeableCarList = () => {
+export const getChangeableCarList = (adminUsername, resvId, dateInfo) => {
   return api({
     url: "/branches/cars/updatable",
     method: "get",
     params: {
-      adminUsername: "",
-      reservationId: "",
-      startDate: "",
-      endDate: "",
+      adminUsername: adminUsername,
+      reservationId: resvId,
+      startDate: dateInfo.startDate,
+      endDate: dateInfo.endDate,
     },
   });
 };

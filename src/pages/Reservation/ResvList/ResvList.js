@@ -1,13 +1,42 @@
 import { useEffect, useState } from "react";
 import { MdSearch, MdArrowBack, MdArrowForward } from "react-icons/md";
-import useResvList from "./utils/useResvList";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { altResvAtom, prevResvAtom } from "recoil/reservationAtom";
 import dayjs from "dayjs";
+import { adminAtom } from "recoil/adminAtom";
+import { getResvList } from "api/changeResvAxios";
 
 const ResvList = ({ handleNext }) => {
-  // 페이지 조작을 위한 커스텀 훅
-  const ctrl = useResvList(4);
+  function paddingList(list, MAX_ROW) {
+    const tempList = [...list];
+
+    for (let i = 0; i < MAX_ROW - list.length; i++) {
+      tempList.push({
+        nickname: null,
+        resvID: null,
+        carNumber: null,
+        startDate: null,
+        endDate: null,
+      });
+    }
+
+    return tempList;
+  }
+
+  // 한 페이지의 최대 row
+  const MAX_ROW = 4;
+
+  // 예약 정보
+  const [resvs, setResvs] = useState([]);
+
+  // 실제로 리스트에 뿌려지는 데이터
+  const [listData, setListData] = useState([]);
+
+  // 현재 페이지 숫자
+  const [pageNum, setPageNum] = useState(1);
+
+  // 최대 페이지 숫자
+  const [maxPageNum, setMaxPageNum] = useState(1);
 
   // 새로운 예약 정보 저장
   const [rclAltResv, setRclAltResv] = useRecoilState(altResvAtom);
@@ -15,25 +44,37 @@ const ResvList = ({ handleNext }) => {
   // 기존 예약 정보 저장
   const [rclPrevResv, setRclPrevResv] = useRecoilState(prevResvAtom);
 
-  // 현재 페이지 쪽수
-  const [pageNum, setPageNum] = useState(1);
-
   // 검색 input
   const [findInput, setFindInput] = useState("");
 
   // 검색중을 확인하는 boolean
   const [isFinding, setIsFinding] = useState(false);
 
-  // 현재 페이지의 내용
-  const [curPage, setCurPage] = useState([]);
+  const adminInfo = useRecoilValue(adminAtom);
 
+  // 초기 useEffect
   useEffect(() => {
-    setCurPage(ctrl.getPage(pageNum));
-  }, [pageNum]);
+    // 리스트 서버에서 받아오는 코드
+    getResvList(adminInfo.adminUsername)
+      .then((response) => {
+        // 초기 리스트 세팅 작업
+        setResvs(response.data);
+
+        const temp = response.data.slice(0, MAX_ROW);
+
+        setListData(paddingList(temp, MAX_ROW));
+
+        setPageNum(1);
+        setMaxPageNum(Math.ceil(response.data.length / MAX_ROW));
+      })
+      .catch((error) => {
+        console.log("지점에 걸려있는 예약들을 받아오지 못했다");
+      });
+  }, []);
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center w-full">
+      <div className="flex flex-col items-center justify-center w-full select-none">
         <div className="w-[1140px] mx-auto rounded-2xl bg-white shadow-xl flex flex-col justify-center items-center">
           <div className="relative flex items-center justify-center w-full h-[50px] px-8 mt-12">
             {/* 타이틀 */}
@@ -54,11 +95,19 @@ const ResvList = ({ handleNext }) => {
                 className="ml-4 text-5xl text-blue-500"
                 onClick={() => {
                   if (findInput.trim() !== "") {
-                    setCurPage(ctrl.findByNickname(findInput.trim()));
                     setIsFinding(true);
+                    setPageNum(1);
+
+                    const findData = resvs.filter(
+                      (v) => v.nickname === findInput
+                    );
+
+                    setListData(paddingList(findData, MAX_ROW));
                   } else {
-                    setCurPage(ctrl.getPage(pageNum));
                     setIsFinding(false);
+                    setListData(
+                      paddingList(resvs.slice(0, 1 * MAX_ROW), MAX_ROW)
+                    );
                   }
                 }}
               >
@@ -86,7 +135,7 @@ const ResvList = ({ handleNext }) => {
             <div className="w-[269px] h-full flex justify-center items-center"></div>
           </div>
           {/* 리스트 */}
-          {curPage.map((v, i) => {
+          {listData.map((v, i) => {
             return (
               <div
                 id={i}
@@ -97,7 +146,7 @@ const ResvList = ({ handleNext }) => {
                   {v.nickname || ""}
                 </div>
                 <div className="w-[269px] h-full flex justify-center items-center">
-                  {v.resvID || ""}
+                  {v.reservationId || ""}
                 </div>
                 <div className="w-[269px] h-full flex justify-center items-center">
                   {v.carNumber || ""}
@@ -147,19 +196,35 @@ const ResvList = ({ handleNext }) => {
             <MdArrowBack
               className="text-5xl"
               onClick={() => {
-                if (pageNum === 1) return;
-                setPageNum(pageNum - 1);
+                if (pageNum - 1 >= 1) {
+                  setPageNum(pageNum - 1);
+
+                  const temp = resvs.slice(
+                    (pageNum - 1 - 1) * MAX_ROW,
+                    (pageNum - 1) * MAX_ROW
+                  );
+
+                  setListData(paddingList(temp, MAX_ROW));
+                }
               }}
             />
             <div className="text-lg">
               Page <span className="text-2xl">{pageNum}</span> of{" "}
-              <span className="text-2xl">{ctrl.getMaxPage()}</span>
+              <span className="text-2xl">{maxPageNum}</span>
             </div>
             <MdArrowForward
               className="text-5xl"
               onClick={() => {
-                if (pageNum === ctrl.getMaxPage()) return;
-                setPageNum(pageNum + 1);
+                if (pageNum + 1 <= maxPageNum) {
+                  setPageNum(pageNum + 1);
+
+                  const temp = resvs.slice(
+                    pageNum * MAX_ROW,
+                    (pageNum + 1) * MAX_ROW
+                  );
+
+                  setListData(paddingList(temp, MAX_ROW));
+                }
               }}
             />
           </div>
