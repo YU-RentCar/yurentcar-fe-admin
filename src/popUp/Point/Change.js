@@ -1,21 +1,20 @@
-import dayjs from "dayjs";
 import { usePopUp } from "utils/usePopUp";
 import { MdOutlineClose } from "react-icons/md";
 import { useState } from "react";
-import { useRecoilValue, useRecoilState } from "recoil";
-import { pointAtom, changeRecordsSelector } from "recoil/pointAtom";
+import { useRecoilValue } from "recoil";
+import { pointAtom } from "recoil/pointAtom";
 import { useAlert } from "utils/useAlert";
+import { addRecord } from "api/pointAxios";
 
 const Change = () => {
   const popUp = usePopUp("Point/Change"); // 팝업 제어
   const alert = useAlert(); // alert 제어
   const user = useRecoilValue(pointAtom); // 유저 정보
-  const [records, setRecords] = useRecoilState(changeRecordsSelector); // 유저의 포인트 내역
   const [change, setChange] = useState({
     // 입력 정보
     price: "",
     reason: "",
-    createdTime: dayjs(new Date()).format("YYYY-MM-DDTHH:mm:SS"),
+    nickname: user.nickname,
   });
   return (
     <div className="fixed top-0 left-0 z-40 flex items-center justify-center w-screen h-screen bg-black bg-opacity-40">
@@ -46,7 +45,7 @@ const Change = () => {
                 className="w-2/3 h-8 px-2 text-lg bg-white border-2 border-blue-600 rounded-xl"
                 type="number"
                 onChange={(e) => {
-                  const tmp = { ...change, price: e.target.value.trim() };
+                  const tmp = { ...change, price: Number(e.target.value) };
                   setChange(tmp);
                 }}
               />
@@ -69,7 +68,7 @@ const Change = () => {
               className="w-full h-10 px-4 mt-2 border-2 border-blue-600 rounded-xl placeholder:text-base"
               placeholder="사유를 입력해주세요"
               onChange={(e) => {
-                const tmp = { ...change, reason: e.target.value.trim() };
+                const tmp = { ...change, reason: e.target.value };
                 setChange(tmp);
               }}
             />
@@ -85,11 +84,14 @@ const Change = () => {
               else if (user.point + Number(change.price) < 0)
                 alert.onAndOff("변경 후 포인트는 0 이상이어야 합니다");
               else {
-                console.log("success");
-                const tmp = [...records];
-                tmp.push({ ...change, price: Number(change.price) });
-                setRecords(tmp);
-                popUp.toggle();
+                addRecord("first_admin", { ...change })
+                  .then((response) => {
+                    console.log("포인트 / 추가 : ", response.data);
+                    popUp.toggle();
+                  })
+                  .catch((error) =>
+                    console.log("포인트 / 추가에러 : ", error.response)
+                  );
               }
             }}
           >
