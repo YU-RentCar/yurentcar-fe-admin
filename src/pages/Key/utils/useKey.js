@@ -79,8 +79,9 @@ export const useKey = function () {
             delete tmpObj.keyState;
             tmpArr.push({ ...tmpObj });
           });
-          if (menu !== "전체") {
-          } else tmp = [tmpArr].filter((v) => v.state === menu);
+          if (menu !== "전체")
+            tmp = [...tmpArr].filter((v) => v.state === menu);
+          else tmp = [...tmpArr];
           tmp.sort((a, b) => a.keyId - b.keyId);
           if (tmp.length)
             setInfo({
