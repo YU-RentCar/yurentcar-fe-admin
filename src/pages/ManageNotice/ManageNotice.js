@@ -2,6 +2,7 @@ import DatePicker from "react-datepicker";
 import dayjs from "dayjs";
 import colorSyntax from "@toast-ui/editor-plugin-color-syntax";
 import axios from "axios";
+import Alert from "popUp/Alert";
 import "dayjs/locale/ko";
 import "react-datepicker/dist/react-datepicker.css";
 import "@toast-ui/editor/dist/toastui-editor.css";
@@ -12,10 +13,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ko } from "date-fns/locale";
 import { Editor } from "@toast-ui/react-editor";
 import { getNotice } from "api/noticeAxios";
-
+import { useAlert } from "utils/useAlert";
+import { alertAtom } from "recoil/alertAtom";
+import { useRecoilValue } from "recoil";
 dayjs.locale("ko");
 
 const ManageNotice = () => {
+  const alert = useAlert(); // alert 제어
   const nav = useNavigate(); // nav 제어
   const location = useLocation(); // nav state 정보 제어
   const [event, setEvent] = useState([new Date(), new Date()]); // 이벤트 기간
@@ -104,50 +108,52 @@ const ManageNotice = () => {
                 description: newNotice.description,
                 isModified: newNotice.isModified,
               };
-              const blob = new Blob([JSON.stringify({ ...tmp })], {
-                type: "application/json",
-              });
-              let formData = new FormData();
-              formData.append("file", newNotice.picture);
-              formData.append("noticeRequest", blob);
-              if (location.state.type === "add") {
-                axios
-                  .post(
-                    "/branches/notices?adminUsername=first_admin",
-                    formData,
-                    {
-                      headers: {
-                        "Content-Type": "multipart/form-data",
-                      },
-                      baseURL: "http://deploytest.iptime.org:8080/api/v1",
-                    }
-                  )
-                  .then((response) => {
-                    console.log("차 / 차등록 : ", response.data);
-                    nav("/notice");
-                  })
-                  .catch((error) => {
-                    console.log("차 / 차등록에러 : ", error.response);
-                  });
-              } else if (location.state.type === "modify") {
-                axios
-                  .patch(
-                    `/branches/notices?adminUsername=first_admin&noticeId=${location.state.noticeId}`,
-                    formData,
-                    {
-                      headers: {
-                        "Content-Type": "multipart/form-data",
-                      },
-                      baseURL: "http://deploytest.iptime.org:8080/api/v1",
-                    }
-                  )
-                  .then((response) => {
-                    console.log("차 / 차수정 : ", response.data);
-                    nav("/notice");
-                  })
-                  .catch((error) => {
-                    console.log("차 / 차수정에러 : ", error.response);
-                  });
+              if (validateInfo(newNotice)) {
+                const blob = new Blob([JSON.stringify({ ...tmp })], {
+                  type: "application/json",
+                });
+                let formData = new FormData();
+                formData.append("file", newNotice.picture);
+                formData.append("noticeRequest", blob);
+                if (location.state.type === "add") {
+                  axios
+                    .post(
+                      "/branches/notices?adminUsername=first_admin",
+                      formData,
+                      {
+                        headers: {
+                          "Content-Type": "multipart/form-data",
+                        },
+                        baseURL: "http://deploytest.iptime.org:8080/api/v1",
+                      }
+                    )
+                    .then((response) => {
+                      console.log("차 / 차등록 : ", response.data);
+                      nav("/notice");
+                    })
+                    .catch((error) => {
+                      console.log("차 / 차등록에러 : ", error.response);
+                    });
+                } else if (location.state.type === "modify") {
+                  axios
+                    .patch(
+                      `/branches/notices?adminUsername=first_admin&noticeId=${location.state.noticeId}`,
+                      formData,
+                      {
+                        headers: {
+                          "Content-Type": "multipart/form-data",
+                        },
+                        baseURL: "http://deploytest.iptime.org:8080/api/v1",
+                      }
+                    )
+                    .then((response) => {
+                      console.log("차 / 차수정 : ", response.data);
+                      nav("/notice");
+                    })
+                    .catch((error) => {
+                      console.log("차 / 차수정에러 : ", error.response);
+                    });
+                }
               }
             }}
           >
@@ -343,8 +349,19 @@ const ManageNotice = () => {
           </div>
         </div>
       </div>
+      {useRecoilValue(alertAtom).state && <Alert />}
     </>
   );
+
+  function validateInfo(newNotice) {
+    if (newNotice.title === "") {
+      alert.onAndOff("제목을 입력해주세요");
+      return false;
+    } else if (newNotice.description === "") {
+      alert.onAndOff("내용을 입력해주세요");
+      return false;
+    } else return true;
+  }
 };
 
 export default ManageNotice;
