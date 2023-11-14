@@ -75,7 +75,7 @@ export const useKey = function () {
           let tmp;
           if (menu === "전체") {
             tmp = [...response.data];
-          } else tmp = [...response.data].filter((v) => v.state === menu);
+          } else tmp = [...response.data].filter((v) => v.keyState === menu);
           tmp.sort((a, b) => a.keyId - b.keyId);
           if (tmp.length)
             setInfo({
