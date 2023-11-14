@@ -70,7 +70,7 @@ const ManageCar = () => {
                         headers: {
                           "Content-Type": "multipart/form-data",
                         },
-                        baseURL: "http://be.yurentcar.kro.kr:1234/api/v1",
+                        baseURL: "http://deploytest.iptime.org:8080/api/v1",
                       }
                     )
                     .then((response) => {
@@ -89,7 +89,7 @@ const ManageCar = () => {
                         headers: {
                           "Content-Type": "multipart/form-data",
                         },
-                        baseURL: "http://be.yurentcar.kro.kr:1234/api/v1",
+                        baseURL: "http://deploytest.iptime.org:8080/api/v1",
                       }
                     )
                     .then((response) => {

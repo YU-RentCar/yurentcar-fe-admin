@@ -43,7 +43,7 @@ const DefaultInfo = React.memo(() => {
             beforePrice: response.data.beforePrice,
             afterPrice: response.data.afterPrice,
             discountRate: response.data.discountRate,
-            discountReason: response.data.discountRate,
+            discountReason: response.data.discountReason,
             carDescription: response.data.carDescription,
             picture: response.data.photoUrl,
             isModified: false,
