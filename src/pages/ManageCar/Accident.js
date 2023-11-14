@@ -36,7 +36,7 @@ const Accident = React.memo(() => {
     <div className="flex flex-col items-center w-full py-8 mt-12 bg-sky-50 rounded-2xl shadow-figma">
       {/* 타이틀 */}
       <div className="w-[700px] h-[35px] flex justify-between items-center text-blue-800 text-[30px] font-bold">
-        차량 수리 내역
+        차량 사고 내역
         {/* 내역 추가 버튼 */}
         <button
           className="h-full text-lg font-bold text-white rounded-lg w-28 bg-sky-600 hover:shadow-figma"
@@ -44,7 +44,7 @@ const Accident = React.memo(() => {
             const tmp = [...newAccident.accidents];
             tmp.push({
               title: "",
-              eventDate: dayjs(new Date()).format("YYYY-MM-DDTHH:mm:SS"),
+              eventDate: dayjs(new Date()).format("YYYY-MM-DDTHH:mm:ss"),
               content: "",
             });
             setNewAccident({ accidents: [...tmp] }); // 빈 객체 추가
@@ -73,7 +73,7 @@ const Accident = React.memo(() => {
                     const tmp = [...newAccident.accidents];
                     const newObj = {
                       ...tmp[i],
-                      eventDate: dayjs(date).format("YYYY-MM-DDTHH:mm:SS"),
+                      eventDate: dayjs(date).format("YYYY-MM-DDTHH:mm:ss"),
                     };
                     tmp.splice(i, 1, newObj);
                     setNewAccident({ accidents: [...tmp] }); // 변경 정보 저장
