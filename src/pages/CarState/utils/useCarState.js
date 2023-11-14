@@ -16,12 +16,14 @@ export const useCarState = function () {
       .then((response) => {
         console.log("차량상태 / 차량조회 : ", response.data);
         const tmp = [...response.data];
-        tmp.sort((a, b) => a.carId - b.carId); // carId 대로 정렬
-        tmp.forEach((v) => (v.afterChange = v.carState)); // 변경 후의 상태 추가
-        setInfo({
-          cars: [...tmp],
-          maxPage: { num: Math.ceil(tmp.length / 6) },
-        }); // 가져온 리스트와 최대 페이지 계산
+        if (tmp.length) {
+          tmp.sort((a, b) => a.carId - b.carId); // carId 대로 정렬
+          tmp.forEach((v) => (v.afterChange = v.carState)); // 변경 후의 상태 추가
+          setInfo({
+            cars: [...tmp],
+            maxPage: { num: Math.ceil(tmp.length / 6) },
+          }); // 가져온 리스트와 최대 페이지 계산
+        } else alert.onAndOff("차량이 없습니다");
       })
       .catch((error) =>
         console.log("차량상태 / 차량조회에러 : ", error.response)
@@ -62,6 +64,7 @@ export const useCarState = function () {
           if (tmp.length === 0) alert.onAndOff("검색 결과 차량이 없습니다");
           else {
             // 검색 결과 반영
+            tmp.sort((a, b) => a.carId - b.carId); // carId 대로 정렬
             tmp.forEach((v) => (v.afterChange = v.carState));
             setInfo({
               cars: [...tmp],
