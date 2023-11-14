@@ -44,7 +44,7 @@ const Repair = React.memo(() => {
             const tmp = [...newRepair.repairs];
             tmp.push({
               title: "",
-              eventDate: dayjs(new Date()).format("YYYY-MM-DDTHH:mm:SS"),
+              eventDate: dayjs(new Date()).format("YYYY-MM-DDTHH:mm:ss"),
               content: "",
             });
             setNewRepair({ repairs: [...tmp] }); // 빈 객체 추가
@@ -73,7 +73,7 @@ const Repair = React.memo(() => {
                     const tmp = [...newRepair.repairs];
                     const newObj = {
                       ...tmp[i],
-                      eventDate: dayjs(date).format("YYYY-MM-DDTHH:mm:SS"),
+                      eventDate: dayjs(date).format("YYYY-MM-DDTHH:mm:ss"),
                     };
                     tmp.splice(i, 1, newObj);
                     setNewRepair({ repairs: [...tmp] }); // 변경 정보 저장
