@@ -8,6 +8,9 @@ import {
 import ResvList from "./ResvList/ResvList";
 import DateTime from "./DateTime/DateTime";
 import CarList from "./CarList/CarList";
+import { useRecoilValue } from "recoil";
+import { alertAtom } from "recoil/alertAtom";
+import Alert from "popUp/Alert";
 
 const Reservation = () => {
   const [activeStep, setActiveStep] = useState(0);
@@ -16,6 +19,8 @@ const Reservation = () => {
 
   const handleNext = () => !isLastStep && setActiveStep((cur) => cur + 1);
   const handlePrev = () => !isFirstStep && setActiveStep((cur) => cur - 1);
+
+  const alertState = useRecoilValue(alertAtom);
 
   useEffect(() => {
     console.log(activeStep);
@@ -94,6 +99,7 @@ const Reservation = () => {
       {activeStep === 2 ? (
         <CarList setActiveStep={setActiveStep}></CarList>
       ) : null}
+      {alertState.state ? <Alert /> : null}
     </div>
   );
 };

@@ -6,6 +6,7 @@ import { altResvAtom, prevResvAtom } from "recoil/reservationAtom";
 import dayjs from "dayjs";
 import { getChangeableCarList, patchReservation } from "api/changeResvAxios";
 import { adminAtom } from "recoil/adminAtom";
+import { useAlert } from "utils/useAlert";
 
 const CarList = ({ setActiveStep }) => {
   function paddingList(list, MAX_ROW) {
@@ -51,6 +52,8 @@ const CarList = ({ setActiveStep }) => {
 
   // 팝업 state
   const [isPopUpShow, setIsPopUpShow] = useState(false);
+
+  const alert = useAlert();
 
   // 초기 useEffect
   useEffect(() => {
@@ -110,21 +113,25 @@ const CarList = ({ setActiveStep }) => {
                 className="ml-4 text-5xl text-blue-500"
                 onClick={() => {
                   if (findInput.trim() !== "") {
-                    setIsFinding(true);
-                    setPageNum(1);
-
-                    setMaxPageNum(
-                      Math.ceil(
-                        cars.filter((v) => v.carName === findInput).length /
-                          MAX_ROW
-                      )
-                    );
-
                     const findData = cars
                       .filter((v) => v.carName === findInput)
                       .slice(0, MAX_ROW);
 
-                    setListData(paddingList(findData, MAX_ROW));
+                    if (findData.length === 0) {
+                      alert.onAndOff("검색 결과가 없습니다.");
+                    } else {
+                      setIsFinding(true);
+                      setPageNum(1);
+
+                      setMaxPageNum(
+                        Math.ceil(
+                          cars.filter((v) => v.carName === findInput).length /
+                            MAX_ROW
+                        )
+                      );
+
+                      setListData(paddingList(findData, MAX_ROW));
+                    }
                   } else {
                     setIsFinding(false);
                     setMaxPageNum(Math.ceil(cars.length / MAX_ROW));
@@ -288,7 +295,6 @@ const CarList = ({ setActiveStep }) => {
                   <span>{`${rclAltResv.endTime}`}</span>
                 </div>
                 <div className="text-xl">
-                  <span>{`${rclAltResv.carName} `}</span>
                   <span>{`${rclAltResv.carNumber} 차량의 예약으로 변경하겠습니까?`}</span>
                 </div>
               </div>

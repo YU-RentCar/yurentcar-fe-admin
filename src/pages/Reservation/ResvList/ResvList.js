@@ -5,6 +5,7 @@ import { altResvAtom, prevResvAtom } from "recoil/reservationAtom";
 import dayjs from "dayjs";
 import { adminAtom } from "recoil/adminAtom";
 import { getResvList } from "api/changeResvAxios";
+import { useAlert } from "utils/useAlert";
 
 const ResvList = ({ handleNext }) => {
   function paddingList(list, MAX_ROW) {
@@ -52,6 +53,8 @@ const ResvList = ({ handleNext }) => {
 
   const adminInfo = useRecoilValue(adminAtom);
 
+  const alert = useAlert();
+
   // 초기 useEffect
   useEffect(() => {
     // 리스트 서버에서 받아오는 코드
@@ -95,14 +98,17 @@ const ResvList = ({ handleNext }) => {
                 className="ml-4 text-5xl text-blue-500"
                 onClick={() => {
                   if (findInput.trim() !== "") {
-                    setIsFinding(true);
-                    setPageNum(1);
-
                     const findData = resvs.filter(
                       (v) => v.nickname === findInput
                     );
 
-                    setListData(paddingList(findData, MAX_ROW));
+                    if (findData.length === 0) {
+                      alert.onAndOff("검색 결과가 없습니다.");
+                    } else {
+                      setIsFinding(true);
+                      setPageNum(1);
+                      setListData(paddingList(findData, MAX_ROW));
+                    }
                   } else {
                     setIsFinding(false);
                     setListData(
