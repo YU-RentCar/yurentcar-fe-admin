@@ -62,26 +62,65 @@ const DetailInfo = React.memo(() => {
           <div className="w-[150px] h-[150px] bg-sky-50 flex flex-col justify-around rounded-xl mx-6 px-3 py-3">
             <MdLocalCarWash className="text-[45px]" />
             <span className="text-lg font-semibold">유종</span>
-            <div className="flex items-center">
-              <input
-                className="w-full px-2 text-base font-bold text-blue-900 border-2 border-blue-900 h-9 rounded-xl"
-                placeholder=""
-                value={newDetail.oilType}
-                onChange={(e) => setNewDetail({ oilType: e.target.value })}
-              />
-            </div>
+            {/* 휘발유, 경유, 수소, 전기 중 선택 */}
+            <Menu placement="bottom">
+              <MenuHandler>
+                <button className="flex items-center justify-around w-full px-2 text-base font-bold text-white bg-blue-400 rounded-xl h-9 ">
+                  <span id="oilType" className="font-bold">
+                    {newDetail.oilType}
+                  </span>
+                  <MdArrowBackIosNew className="-rotate-90" />
+                </button>
+              </MenuHandler>
+              <MenuList className="max-h-72">
+                {["휘발유", "경유", "수소", "전기"].map((v, i) => {
+                  return (
+                    <MenuItem
+                      className="flex items-center justify-center text-lg font-bold"
+                      onClick={() => {
+                        document.getElementById("oilType").innerText = v;
+                        setNewDetail({ oilType: v });
+                      }}
+                      key={i}
+                    >
+                      {v}
+                    </MenuItem>
+                  );
+                })}
+              </MenuList>
+            </Menu>
           </div>
           {/* 차량 크기 */}
           <div className="w-[150px] h-[150px] bg-sky-50 flex flex-col justify-around rounded-xl mx-6 px-3 py-3">
             <MdPhotoSizeSelectSmall className="text-[45px]" />
             <span className="text-lg font-semibold">차량 크기</span>
-            <div className="flex items-center">
-              <input
-                className="w-full px-2 text-base font-bold text-blue-900 border-2 border-blue-900 h-9 rounded-xl"
-                value={newDetail.carSize}
-                onChange={(e) => setNewDetail({ carSize: e.target.value })}
-              />
-            </div>
+            {/* 소형, 준중형, 중형, 대형 중 선택 */}
+            <Menu placement="bottom">
+              <MenuHandler>
+                <button className="flex items-center justify-around w-full px-2 text-base font-bold text-white bg-blue-400 rounded-xl h-9 ">
+                  <span id="carSize" className="font-bold">
+                    {newDetail.carSize}
+                  </span>
+                  <MdArrowBackIosNew className="-rotate-90" />
+                </button>
+              </MenuHandler>
+              <MenuList className="max-h-72">
+                {["소형", "준중형", "중형", "대형"].map((v, i) => {
+                  return (
+                    <MenuItem
+                      className="flex items-center justify-center text-lg font-bold"
+                      onClick={() => {
+                        document.getElementById("carSize").innerText = v;
+                        setNewDetail({ carSize: v });
+                      }}
+                      key={i}
+                    >
+                      {v}
+                    </MenuItem>
+                  );
+                })}
+              </MenuList>
+            </Menu>
           </div>
           {/* 출시일 */}
           <div className="w-[150px] h-[150px] bg-sky-50 flex flex-col justify-around rounded-xl mx-6 px-3 py-3">
@@ -186,13 +225,44 @@ const DetailInfo = React.memo(() => {
           <div className="w-[150px] h-[150px] bg-sky-50 flex flex-col justify-around rounded-xl mx-6 px-3 py-3">
             <MdTag className="text-[45px]" />
             <span className="text-lg font-semibold">브랜드</span>
-            <div className="flex items-center">
-              <input
-                className="w-full px-2 text-base font-bold text-blue-900 border-2 border-blue-900 h-9 rounded-xl"
-                value={newDetail.carBrand}
-                onChange={(e) => setNewDetail({ carBrand: e.target.value })}
-              />
-            </div>
+            {/* 현대, 기아, 제네시스, 르노삼성, 쌍용, BMW, 벤츠, 볼보, 아우디, 혼다 중 선택 */}
+            <Menu placement="bottom">
+              <MenuHandler>
+                <button className="flex items-center justify-around w-full px-2 text-base font-bold text-white bg-blue-400 rounded-xl h-9 ">
+                  <span id="carBrand" className="font-bold">
+                    {newDetail.carBrand}
+                  </span>
+                  <MdArrowBackIosNew className="-rotate-90" />
+                </button>
+              </MenuHandler>
+              <MenuList className="max-h-72">
+                {[
+                  "현대",
+                  "기아",
+                  "제네시스",
+                  "르노삼성",
+                  "쌍용",
+                  "BMW",
+                  "벤츠",
+                  "볼보",
+                  "아우디",
+                  "혼다",
+                ].map((v, i) => {
+                  return (
+                    <MenuItem
+                      className="flex items-center justify-center text-lg font-bold"
+                      onClick={() => {
+                        document.getElementById("carBrand").innerText = v;
+                        setNewDetail({ carBrand: v });
+                      }}
+                      key={i}
+                    >
+                      {v}
+                    </MenuItem>
+                  );
+                })}
+              </MenuList>
+            </Menu>
           </div>
           {/* 국산/외제 */}
           <div className="w-[150px] h-[150px] bg-sky-50 flex flex-col justify-around rounded-xl mx-6 px-3 py-3">
