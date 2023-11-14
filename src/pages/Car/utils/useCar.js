@@ -16,11 +16,13 @@ export const useCar = function () {
       .then((response) => {
         console.log("차 / 차량조회 : ", response.data);
         const tmp = [...response.data];
-        tmp.sort((a, b) => a.carNumber - b.carNumber); // carNumber 기준으로 정렬
-        setInfo({
-          cars: [...tmp],
-          maxPage: { num: Math.ceil(tmp.length / 6) },
-        });
+        if (tmp.length) {
+          tmp.sort((a, b) => a.carId - b.carId); // carId 기준으로 정렬
+          setInfo({
+            cars: [...tmp],
+            maxPage: { num: Math.ceil(tmp.length / 6) },
+          });
+        } else alert.onAndOff("차량이 없습니다");
       })
       .catch((error) => {
         console.log("차량상태 / 차량조회에러 : ", error.response);
@@ -55,6 +57,7 @@ export const useCar = function () {
         let res;
         if (carNumber.trim() === "") res = [...response.data];
         else res = [...response.data].filter((v) => v.carNumber === carNumber);
+        res.sort((a, b) => a.carId - b.carId); // carId 기준으로 정렬
         if (res.length)
           setInfo({
             cars: [...res],
