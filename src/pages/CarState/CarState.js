@@ -159,7 +159,10 @@ const CarState = () => {
                                   afterChange: v, // 변화된 상태
                                 };
                                 tmp.splice(index, 1, after); // 바뀐 객체로 변경
-                                setNewInfo({ cars: [...tmp] });
+                                setNewInfo({
+                                  cars: [...tmp],
+                                  maxPage: { num: Math.ceil(tmp.length / 6) },
+                                });
                                 document.getElementById(`sort${i}`).innerText =
                                   v;
                               }}
