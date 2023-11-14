@@ -72,10 +72,15 @@ export const useKey = function () {
         console.log("키 / 키검색 : ", response.data);
         // 필터 검색
         if (carNumber === "") {
+          const tmpArr = [];
           let tmp;
-          if (menu === "전체") {
-            tmp = [...response.data];
-          } else tmp = [...response.data].filter((v) => v.keyState === menu);
+          [...response.data].forEach((v) => {
+            const tmpObj = { ...v, state: v.keyState };
+            delete tmpObj.keyState;
+            tmpArr.push({ ...tmpObj });
+          });
+          if (menu !== "전체") {
+          } else tmp = [tmpArr].filter((v) => v.state === menu);
           tmp.sort((a, b) => a.keyId - b.keyId);
           if (tmp.length)
             setInfo({
