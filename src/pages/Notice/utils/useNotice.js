@@ -59,6 +59,7 @@ export const useNotice = function () {
         [...response.data].forEach((v) => {
           if (v.title.includes(title)) tmp.push(v);
         });
+        tmp.sort((a, b) => a.modifiedAt - b.modifiedAt);
         if (tmp.length) {
           setInfo({
             notices: [...tmp],
