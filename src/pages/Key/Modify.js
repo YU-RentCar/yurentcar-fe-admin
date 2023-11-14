@@ -9,8 +9,10 @@ import {
 } from "@material-tailwind/react";
 import { useRecoilState } from "recoil";
 import { keyInfoSelector } from "recoil/keyAtom";
+import { useAlert } from "utils/useAlert";
 
 const Modify = ({ idx, car, ku, setMIdx }) => {
+  const alert = useAlert(); // alert 제어
   const [newKey, setNewKey] = useState({ ...car }); // 변경된 차량 정보
   const [newInfo, setNewInfo] = useRecoilState(keyInfoSelector);
   useEffect(() => {
@@ -114,11 +116,12 @@ const Modify = ({ idx, car, ku, setMIdx }) => {
           className="w-3/5 text-lg font-bold text-white bg-blue-300 rounded-full h-3/5 hover:bg-blue-600 hover:shadow-figma"
           onClick={() => {
             const tmp = { ...newKey, state: title[newKey.keyState] };
-            console.log("hmm : ", tmp, title[newKey.keyState]);
-            newInfo.addOrModify
-              ? ku.addKey("first_admin", { ...tmp })
-              : ku.modifyKey("first_admin", { ...tmp });
-            setMIdx(-1);
+            if (validateInfo(tmp)) {
+              newInfo.addOrModify
+                ? ku.addKey("first_admin", { ...tmp })
+                : ku.modifyKey("first_admin", { ...tmp });
+              setMIdx(-1);
+            }
           }}
         >
           저장
@@ -126,6 +129,22 @@ const Modify = ({ idx, car, ku, setMIdx }) => {
       </div>
     </div>
   );
+
+  function validateInfo(newKey) {
+    if (newKey.carNumber === "") {
+      alert.onAndOff("차량 번호를 입력해주세요");
+      return false;
+    } else if (newKey.rfid < 0) {
+      alert.onAndOff("태그 ID 를 입력해주세요");
+      return false;
+    } else if (newKey.kioskId <= 0) {
+      alert.onAndOff("키오스크 번호를 입력해주세요");
+      return false;
+    } else if (newKey.slotNumber < 0) {
+      alert.onAndOff("키박스 번호를 입력해주세요");
+      return false;
+    } else return true;
+  }
 };
 
 export default Modify;

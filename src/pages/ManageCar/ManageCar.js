@@ -159,7 +159,21 @@ const ManageCar = () => {
     } else if (newInfo.releaseDate === "") {
       alert.onAndOff("출시년도를 선택해주세요");
       return false;
-    } else return true;
+    } else {
+      newInfo.repairList.forEach((v) => {
+        if (v.title === "" || v.content === "") {
+          alert.onAndOff("수리 정보를 모두 입력해주세요");
+          return false;
+        }
+      });
+      newInfo.accidentList.forEach((v) => {
+        if (v.title === "" || v.content === "") {
+          alert.onAndOff("사고 정보를 모두 입력해주세요");
+          return false;
+        }
+      });
+      return true;
+    }
   }
 };
 
