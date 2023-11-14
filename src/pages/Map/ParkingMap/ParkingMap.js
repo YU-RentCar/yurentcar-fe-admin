@@ -251,10 +251,12 @@ const ParkingMap = () => {
     setMap(adminInfo, payload)
       .then((response) => {
         console.log("서버에다 주차장 지도 설정 성공");
+        alert.onAndOff("주차장 지도 저장에 성공하였습니다.");
         console.log(response);
       })
       .catch((error) => {
         console.log("서버에다 주차장 등록 실패");
+        alert.onAndOff("주차장 지도 저장 실패하였습니다. 다시 시도해 주세요.");
         console.log(error);
       });
   }
