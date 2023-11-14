@@ -30,7 +30,7 @@ const CarState = () => {
   // maxPage 가 바뀌면 -> 새로운 데이터셋
   useEffect(() => {
     setSix(csu.fillEmpty(csu.getPageItems(1)));
-    setNewInfo({ page: 1 });
+    newInfo.maxPage.num ? setNewInfo({ page: 1 }) : setNewInfo({ page: 0 });
   }, [newInfo.maxPage]);
   return (
     <>
