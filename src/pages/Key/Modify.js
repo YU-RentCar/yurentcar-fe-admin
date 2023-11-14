@@ -44,7 +44,7 @@ const Modify = ({ idx, car, ku, setMIdx }) => {
         <input
           className="w-5/6 px-4 text-sm border-2 border-blue-600 rounded-xl h-3/5"
           placeholder="태그 ID (RFID)"
-          value={newKey.rfid.replaceAll(" ", "-")}
+          value={newKey.rfid}
           onChange={(e) => {
             const tmp = { ...newKey, rfid: e.target.value.trim() };
             setNewKey(tmp);

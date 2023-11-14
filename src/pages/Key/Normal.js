@@ -17,7 +17,7 @@ const Normal = ({ idx, car, mIdx, setMIdx }) => {
         {car.carNumber}
       </div>
       <div className="w-[180px] h-full flex justify-center items-center">
-        {car.rfid.replaceAll(" ", "-")}
+        {car.rfid}
       </div>
       <div className="w-[180px] h-full flex justify-center items-center">
         {car.kioskId >= 0 ? car.kioskId : ""}
