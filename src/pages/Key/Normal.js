@@ -17,7 +17,7 @@ const Normal = ({ idx, car, mIdx, setMIdx }) => {
         {car.carNumber}
       </div>
       <div className="w-[180px] h-full flex justify-center items-center">
-        {car.rfid.replaceAll(" ", "-")}
+        {car.rfid}
       </div>
       <div className="w-[180px] h-full flex justify-center items-center">
         {car.kioskId >= 0 ? car.kioskId : ""}
@@ -51,8 +51,12 @@ const Normal = ({ idx, car, mIdx, setMIdx }) => {
             <button
               className="w-20 h-10 text-base text-red-300 border-2 border-red-300 rounded-full hover:shadow-figma"
               onClick={() => {
-                setNewInfo({ deleteTarget: car.keyId }); // 삭제 타겟 지정
-                popUp.toggle(); // 삭제 팝업
+                if (mIdx !== -1)
+                  alert.onAndOff("기존 수정 내용을 저장해주세요");
+                else {
+                  setNewInfo({ deleteTarget: car.keyId }); // 삭제 타겟 지정
+                  popUp.toggle(); // 삭제 팝업
+                }
               }}
             >
               삭제

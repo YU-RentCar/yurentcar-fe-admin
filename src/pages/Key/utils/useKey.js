@@ -62,6 +62,12 @@ export const useKey = function () {
       })
       .catch((error) => {
         console.log("키 / 키추가에러 : ", error.response);
+        const tmp = [...info.keys];
+        tmp.pop();
+        setInfo({
+          keys: [...tmp],
+          maxPage: { num: Math.ceil(tmp.length / 6) },
+        });
         alert.onAndOff("키를 등록할 수 없습니다");
       });
   };

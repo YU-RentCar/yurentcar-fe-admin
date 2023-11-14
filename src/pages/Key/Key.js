@@ -123,11 +123,15 @@ const Key = () => {
               <button
                 className="ml-4 text-5xl text-blue-500"
                 onClick={() => {
-                  ku.searchKey(
-                    "first_admin",
-                    searchTarget,
-                    document.getElementById("sort").innerText
-                  );
+                  if (mIdx !== -1)
+                    alert.onAndOff("기존 수정 내용을 저장해주세요");
+                  else {
+                    ku.searchKey(
+                      "first_admin",
+                      searchTarget,
+                      document.getElementById("sort").innerText
+                    );
+                  }
                 }}
               >
                 <MdSearch />
