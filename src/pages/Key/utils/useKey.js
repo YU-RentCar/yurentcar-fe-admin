@@ -22,7 +22,7 @@ export const useKey = function () {
             state: v.keyState,
           });
         });
-        tmp.sort((a, b) => a.slotNumber - b.slotNumber);
+        tmp.sort((a, b) => a.keyId - b.keyId);
         setInfo({
           keys: [...tmp],
           maxPage: { num: Math.ceil(tmp.length / 6) },
@@ -75,8 +75,8 @@ export const useKey = function () {
           let tmp;
           if (menu === "전체") {
             tmp = [...response.data];
-            tmp.sort((a, b) => a.carNumber - b.carNumber);
           } else tmp = [...response.data].filter((v) => v.state === menu);
+          tmp.sort((a, b) => a.keyId - b.keyId);
           if (tmp.length)
             setInfo({
               keys: [...tmp],

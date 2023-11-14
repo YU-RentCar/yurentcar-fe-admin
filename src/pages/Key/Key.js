@@ -88,7 +88,7 @@ const Key = () => {
               <input
                 className="h-full px-8 text-xl font-semibold border-2 border-blue-500 rounded-full"
                 placeholder="차량 번호를 입력해주세요"
-                onChange={(e) => setSearchTarget(e.target.value.trim())}
+                onChange={(e) => setSearchTarget(e.target.value)}
               />
             </div>
             <div className="w-[300px] h-full flex justify-end items-center">
