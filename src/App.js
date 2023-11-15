@@ -9,15 +9,32 @@ import Key from "pages/Key/Key";
 import Notice from "pages/Notice/Notice";
 import ManageNotice from "pages/ManageNotice/ManageNotice";
 import Login from "pages/Login/Login";
+import Alert from "popUp/Alert";
 import { useEffect } from "react";
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
+import { useRecoilValue } from "recoil";
+import { adminAtom } from "recoil/adminAtom";
+import { useAlert } from "utils/useAlert";
+import { alertAtom } from "recoil/alertAtom";
 
 function App() {
   const nav = useNavigate();
   const location = useLocation();
+  const alert = useAlert();
+  const adminInfo = useRecoilValue(adminAtom);
   useEffect(() => {
-    if (location.pathname.split("/")[1] === "managecar") nav("/car");
-    else if (location.pathname.split("/")[1] === "managenotice") nav("/notice");
+    if (
+      adminInfo.adminUsername === "" ||
+      adminInfo.branchName === "" ||
+      adminInfo.province === ""
+    ) {
+      alert.onAndOff("로그인을 진행해주세요");
+      nav("/");
+    } else {
+      if (location.pathname.split("/")[1] === "managecar") nav("/car");
+      else if (location.pathname.split("/")[1] === "managenotice")
+        nav("/notice");
+    }
   }, []);
   return (
     <>
@@ -38,6 +55,7 @@ function App() {
           <Route path="/" element={<Login />}></Route>
         </Routes>
       </div>
+      {useRecoilValue(alertAtom).state && <Alert />}
     </>
   );
 }
