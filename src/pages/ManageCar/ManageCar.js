@@ -36,7 +36,11 @@ const ManageCar = () => {
           <button
             className="flex items-center justify-center h-10 ml-12 text-base font-bold w-28 rounded-xl bg-sky-200 hover:shadow-figma"
             onClick={async () => {
-              if (validateInfo(newInfo)) {
+              if (
+                validateInfo(newInfo) &&
+                validateArray(newInfo.repairs) &&
+                validateArray(newInfo.accidents)
+              ) {
                 const tmp = {
                   carNumber: newInfo.carNumber,
                   totalDistance: newInfo.totalDistance,
@@ -100,7 +104,7 @@ const ManageCar = () => {
                       console.log("차 / 차수정에러 : ", error.response);
                     });
                 }
-              }
+              } else alert.onAndOff("정보를 모두 입력해주세요");
             }}
           >
             {location.state.type === "add" ? "차량 등록" : "제원 변경"}
@@ -120,60 +124,31 @@ const ManageCar = () => {
   );
 
   function validateInfo(newInfo) {
-    if (newInfo.carNumber === "") {
-      alert.onAndOff("차량 번호를 입력해주세요");
+    if (
+      newInfo.carNumber === "" ||
+      newInfo.totalDistance < 0 ||
+      newInfo.beforePrice <= 0 ||
+      newInfo.discountRate < 0 ||
+      newInfo.discountReason === "" ||
+      newInfo.carDescription === "" ||
+      newInfo.carName === "" ||
+      newInfo.maxPassenger <= 0 ||
+      newInfo.carSize === "" ||
+      newInfo.oilType === "" ||
+      newInfo.transmission === "" ||
+      newInfo.carBrand === "" ||
+      newInfo.releaseDate === ""
+    )
       return false;
-    } else if (newInfo.totalDistance < 0) {
-      alert.onAndOff("총 주행거리는 0 이상 입력해주세요");
-      return false;
-    } else if (newInfo.beforePrice <= 0) {
-      alert.onAndOff("금액을 1 이상 입력해주세요");
-      return false;
-    } else if (newInfo.discountRate < 0) {
-      alert.onAndOff("할인 비율을 0 이상 입력해주세요");
-      return false;
-    } else if (newInfo.discountReason === "") {
-      alert.onAndOff("할인 사유를 입력해주세요");
-      return false;
-    } else if (newInfo.carDescription === "") {
-      alert.onAndOff("차량 설명을 입력해주세요");
-      return false;
-    } else if (newInfo.carName === "") {
-      alert.onAndOff("차종을 입력해주세요");
-      return false;
-    } else if (newInfo.maxPassenger <= 0) {
-      alert.onAndOff("승차 인원은 1 이상 입력해주세요");
-      return false;
-    } else if (newInfo.carSize === "") {
-      alert.onAndOff("차량 크기를 입력해주세요");
-      return false;
-    } else if (newInfo.oilType === "") {
-      alert.onAndOff("유종을 입력해주세요");
-      return false;
-    } else if (newInfo.transmission === "") {
-      alert.onAndOff("구동기를 선택해주세요");
-      return false;
-    } else if (newInfo.carBrand === "") {
-      alert.onAndOff("브랜드를 선택해주세요");
-      return false;
-    } else if (newInfo.releaseDate === "") {
-      alert.onAndOff("출시년도를 선택해주세요");
-      return false;
-    } else {
-      newInfo.repairList.forEach((v) => {
-        if (v.title === "" || v.content === "") {
-          alert.onAndOff("수리 정보를 모두 입력해주세요");
-          return false;
-        }
-      });
-      newInfo.accidentList.forEach((v) => {
-        if (v.title === "" || v.content === "") {
-          alert.onAndOff("사고 정보를 모두 입력해주세요");
-          return false;
-        }
-      });
-      return true;
-    }
+    else return true;
+  }
+  function validateArray(infos) {
+    if (infos.length) {
+      for (let i = 0; i < infos.length; i++) {
+        if (infos[i].title === "" || infos[i].content === "") return false;
+      }
+    } else return false;
+    return true;
   }
 };
 
