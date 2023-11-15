@@ -48,11 +48,13 @@ export const Login = () => {
               .then((response) => {
                 console.log("로그인 성공!");
                 console.log(response.data);
-                setNewInfo({
+                const tmp = {
                   adminUsername: idInput,
                   branchName: response.data.branchName,
                   province: response.data.province,
-                });
+                };
+                setNewInfo(tmp);
+                window.sessionStorage.setItem("adminInfo", JSON.stringify(tmp));
                 nav("/carstate");
               })
               .catch((error) => {

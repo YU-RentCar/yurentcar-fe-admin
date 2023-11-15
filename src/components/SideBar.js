@@ -127,7 +127,9 @@ const SideBar = () => {
                 branchName: "",
                 province: "",
               });
+              window.sessionStorage.removeItem("adminInfo");
               alert.onAndOff("로그아웃 되었습니다");
+              setOpen(false);
               nav("/");
             }}
           >
@@ -135,7 +137,7 @@ const SideBar = () => {
           </button>
         </div>
       </Drawer>
-      {useRecoilValue(alertAtom) && <Alert />}
+      {useRecoilValue(alertAtom).state && <Alert />}
     </>
   );
 };

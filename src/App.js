@@ -12,8 +12,8 @@ import Login from "pages/Login/Login";
 import Alert from "popUp/Alert";
 import { useEffect } from "react";
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
-import { useRecoilValue } from "recoil";
-import { adminAtom } from "recoil/adminAtom";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { adminSelector } from "recoil/adminAtom";
 import { useAlert } from "utils/useAlert";
 import { alertAtom } from "recoil/alertAtom";
 
@@ -21,16 +21,18 @@ function App() {
   const nav = useNavigate();
   const location = useLocation();
   const alert = useAlert();
-  const adminInfo = useRecoilValue(adminAtom);
+  const [admin, setAdmin] = useRecoilState(adminSelector);
   useEffect(() => {
-    if (
-      adminInfo.adminUsername === "" ||
-      adminInfo.branchName === "" ||
-      adminInfo.province === ""
-    ) {
+    const adminInfo = window.sessionStorage.getItem("adminInfo");
+    if (adminInfo === null) {
       alert.onAndOff("로그인을 진행해주세요");
       nav("/");
     } else {
+      setAdmin({
+        branchName: JSON.parse(adminInfo).branchName,
+        province: JSON.parse(adminInfo).province,
+        adminUsername: JSON.parse(adminInfo).adminUsername,
+      });
       if (location.pathname.split("/")[1] === "managecar") nav("/car");
       else if (location.pathname.split("/")[1] === "managenotice")
         nav("/notice");
@@ -40,7 +42,7 @@ function App() {
     <>
       <div className="w-full min-h-screen bg-slate-50">
         {/* 사이드바 */}
-        <SideBar />
+        {location.pathname === "/" ? null : <SideBar />}
         {/* 메인 컨텐츠 */}
         <Routes>
           <Route path="/carstate" element={<CarState />}></Route>
