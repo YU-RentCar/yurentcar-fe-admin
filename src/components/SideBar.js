@@ -13,10 +13,17 @@ import {
   MdMoney,
   MdAssignment,
 } from "react-icons/md";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { adminSelector } from "recoil/adminAtom";
+import { useAlert } from "utils/useAlert";
+import { alertAtom } from "recoil/alertAtom";
+import Alert from "popUp/Alert";
 
 const SideBar = () => {
   const [open, setOpen] = useState(false); // Drawer open/close 제어
   const nav = useNavigate(); // nav 제어
+  const [adminInfo, setAdminInfo] = useRecoilState(adminSelector);
+  const alert = useAlert();
   const [menu, setMenu] = useState([
     {
       name: "차량 상태 관리",
@@ -111,11 +118,26 @@ const SideBar = () => {
               );
             })}
           </div>
-          <button className="w-[420px] h-[70px] flex justify-center items-center bg-sky-200 rounded-2xl text-3xl font-extrabold hover:shadow-figma">
+          <button
+            className="w-[420px] h-[70px] flex justify-center items-center bg-sky-200 rounded-2xl text-3xl font-extrabold hover:shadow-figma"
+            onClick={() => {
+              setAdminInfo({
+                branchId: -1,
+                adminUsername: "",
+                branchName: "",
+                province: "",
+              });
+              window.sessionStorage.removeItem("adminInfo");
+              alert.onAndOff("로그아웃 되었습니다");
+              setOpen(false);
+              nav("/");
+            }}
+          >
             로그아웃
           </button>
         </div>
       </Drawer>
+      {useRecoilValue(alertAtom).state && <Alert />}
     </>
   );
 };
