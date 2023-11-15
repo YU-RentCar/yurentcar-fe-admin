@@ -2,10 +2,15 @@ import React from "react";
 import { useEffect, useState, useRef } from "react";
 import { adminLogin } from "api/loginAxios";
 import Logo from "../../assets/Logo.png";
+import { useNavigate } from "react-router-dom";
+import { useRecoilState } from "recoil";
+import { adminSelector } from "recoil/adminAtom";
 
 export const Login = () => {
   const [idInput, setIdInput] = useState("");
   const [pwdInput, setPwdInput] = useState("");
+  const [newInfo, setNewInfo] = useRecoilState(adminSelector);
+  const nav = useNavigate();
 
   return (
     <div className="flex items-center justify-center w-screen h-screen bg-blue-100">
@@ -43,6 +48,12 @@ export const Login = () => {
               .then((response) => {
                 console.log("로그인 성공!");
                 console.log(response.data);
+                setNewInfo({
+                  adminUsername: idInput,
+                  branchName: response.data.branchName,
+                  province: response.data.province,
+                });
+                nav("/carstate");
               })
               .catch((error) => {
                 console.log("로그인 실패!");
