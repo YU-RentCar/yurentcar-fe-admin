@@ -8,13 +8,14 @@ export const useNotice = function () {
   const adminInfo = useRecoilValue(adminAtom); // 관리자 정보
   const alert = useAlert(); // alert 제어
   const [info, setInfo] = useRecoilState(noticeInfoSelector); // 공지사항 관리 데이터 관리
+  const admin = JSON.parse(window.sessionStorage.getItem("adminInfo"));
 
   // controller
   const nu = {};
 
   // 공지사항 리스트 조회
   nu.getNoticeList = function () {
-    getNoticeList(adminInfo.province, adminInfo.branchName)
+    getNoticeList(admin.province, admin.branchName)
       .then((response) => {
         console.log("공지사항 / 조회 : ", response.data);
         const tmp = [...response.data];
@@ -52,7 +53,7 @@ export const useNotice = function () {
   };
   // 공지사항 검색
   nu.searchNotices = function (title) {
-    getNoticeList(adminInfo.province, adminInfo.branchName)
+    getNoticeList(admin.province, admin.branchName)
       .then((response) => {
         console.log("검색 / 조회 : ", response.data);
         const tmp = [];
@@ -74,7 +75,7 @@ export const useNotice = function () {
     deleteNotice("first_admin", noticeId)
       .then((response) => {
         console.log("공지 / 삭제 : ", response.data);
-        this.getNoticeList(adminInfo.province, adminInfo.branchName);
+        this.getNoticeList(admin.province, admin.branchName);
       })
       .catch((error) => console.log("공지 / 삭제에러 : ", error.response));
   };
