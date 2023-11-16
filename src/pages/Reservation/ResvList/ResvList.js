@@ -58,7 +58,10 @@ const ResvList = ({ handleNext }) => {
   // 초기 useEffect
   useEffect(() => {
     // 리스트 서버에서 받아오는 코드
-    getResvList(adminInfo.adminUsername)
+    getResvList({
+      adminUsername: JSON.parse(window.sessionStorage.getItem("adminInfo"))
+        .adminUsername,
+    })
       .then((response) => {
         // 초기 리스트 세팅 작업
         setResvs(response.data);
