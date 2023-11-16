@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { atom, selector } from "recoil";
 
 export const manageCarAtom = atom({
@@ -22,14 +23,14 @@ export const manageCarAtom = atom({
     repairs: [
       {
         title: "",
-        eventDate: "",
+        eventDate: dayjs(new Date()).format("YYYY-MM-DDTHH:mm:ss"),
         content: "",
       },
     ],
     accidents: [
       {
         title: "",
-        eventDate: "",
+        eventDate: dayjs(new Date()).format("YYYY-MM-DDTHH:mm:ss"),
         content: "",
       },
     ],
@@ -77,14 +78,14 @@ export const clearInfoSelector = selector({
       repairs: [
         {
           title: "",
-          eventDate: "",
+          eventDate: dayjs(new Date()).format("YYYY-MM-DDTHH:mm:ss"),
           content: "",
         },
       ],
       accidents: [
         {
           title: "",
-          eventDate: "",
+          eventDate: dayjs(new Date()).format("YYYY-MM-DDTHH:mm:ss"),
           content: "",
         },
       ],

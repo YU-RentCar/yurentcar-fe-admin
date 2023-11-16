@@ -147,7 +147,7 @@ const ManageCar = () => {
       for (let i = 0; i < infos.length; i++) {
         if (infos[i].title === "" || infos[i].content === "") return false;
       }
-    } else return false;
+    }
     return true;
   }
 };
