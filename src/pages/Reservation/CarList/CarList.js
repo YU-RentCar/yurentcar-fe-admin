@@ -69,7 +69,7 @@ const CarList = ({ setActiveStep }) => {
     };
 
     getChangeableCarList(
-      adminInfo.adminUsername,
+      JSON.parse(window.sessionStorage.getItem("adminInfo")).adminUsername,
       rclPrevResv.reservationId,
       dateInfo
     )
@@ -309,7 +309,11 @@ const CarList = ({ setActiveStep }) => {
                       reservationId: rclPrevResv.reservationId,
                     };
 
-                    patchReservation(adminInfo.adminUsername, resvInfo)
+                    patchReservation(
+                      JSON.parse(window.sessionStorage.getItem("adminInfo"))
+                        .adminUsername,
+                      resvInfo
+                    )
                       .then((response) => {
                         console.log("예약 변경 완료");
                         setActiveStep(0);

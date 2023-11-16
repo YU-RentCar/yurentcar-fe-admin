@@ -14,7 +14,7 @@ import { adminAtom } from "recoil/adminAtom";
 
 const ParkingMap = () => {
   // admin 정보 recoil
-  const adminInfo = useRecoilValue(adminAtom);
+  const [adminInfo, setAdminInfo] = useRecoilState(adminAtom);
 
   // 버튼 스타일 상수
   const UNSELECTED_STYLE =
@@ -45,6 +45,15 @@ const ParkingMap = () => {
     })
   );
 
+  // // 새로고침시 세션 체크
+  // useEffect(() => {
+  //   if (window.sessionStorage.getItem("adminInfo") !== null) {
+  //     const info = JSON.parse(window.sessionStorage.getItem("adminInfo"));
+  //     console.log(info);
+  //     setSession(info);
+  //   }
+  // }, []);
+
   //배율이 바뀌면 원래 위치를 유지하며 리렌더링
   useEffect(() => {
     setRects(
@@ -63,7 +72,11 @@ const ParkingMap = () => {
   // 초기에 서버에 저장되어있는 지도를 가져와 렌더링
   // axiosList로 지도 정보를 받았다고 가정
   useEffect(() => {
-    getMap(adminInfo)
+    getMap({
+      province: JSON.parse(window.sessionStorage.getItem("adminInfo")).province,
+      branchName: JSON.parse(window.sessionStorage.getItem("adminInfo"))
+        .branchName,
+    })
       .then((response) => {
         console.log("지도 불러오기 성공");
         for (const item of response.data) {
@@ -248,7 +261,13 @@ const ParkingMap = () => {
       })
       .filter((item) => item.type);
 
-    setMap(adminInfo, payload)
+    setMap(
+      {
+        adminUsername: JSON.parse(window.sessionStorage.getItem("adminInfo"))
+          .adminUsername,
+      },
+      payload
+    )
       .then((response) => {
         console.log("서버에다 주차장 지도 설정 성공");
         alert.onAndOff("주차장 지도 저장에 성공하였습니다.");
